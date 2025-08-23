@@ -1,0 +1,11 @@
+services:
+  vikunja:
+    image: 
+    container_name: vikunja
+    restart: unless-stopped
+    # ports:
+    #   - ":"
+    # volumes:
+    #   - ./data:/data
+    # environment:
+    #   - VARIABLE=value

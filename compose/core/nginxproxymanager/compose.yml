@@ -1,0 +1,11 @@
+services:
+  nginxproxymanager:
+    image: 
+    container_name: nginxproxymanager
+    restart: unless-stopped
+    # ports:
+    #   - ":"
+    # volumes:
+    #   - ./data:/data
+    # environment:
+    #   - VARIABLE=value

@@ -1,0 +1,11 @@
+services:
+  filebrowser:
+    image: 
+    container_name: filebrowser
+    restart: unless-stopped
+    # ports:
+    #   - ":"
+    # volumes:
+    #   - ./data:/data
+    # environment:
+    #   - VARIABLE=value

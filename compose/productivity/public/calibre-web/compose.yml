@@ -1,0 +1,11 @@
+services:
+  calibre-web:
+    image: 
+    container_name: calibre-web
+    restart: unless-stopped
+    # ports:
+    #   - ":"
+    # volumes:
+    #   - ./data:/data
+    # environment:
+    #   - VARIABLE=value

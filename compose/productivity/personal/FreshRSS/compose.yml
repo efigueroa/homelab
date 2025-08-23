@@ -1,0 +1,11 @@
+services:
+  FreshRSS:
+    image: 
+    container_name: FreshRSS
+    restart: unless-stopped
+    # ports:
+    #   - ":"
+    # volumes:
+    #   - ./data:/data
+    # environment:
+    #   - VARIABLE=value

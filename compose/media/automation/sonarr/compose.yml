@@ -1,0 +1,11 @@
+services:
+  sonarr:
+    image: 
+    container_name: sonarr
+    restart: unless-stopped
+    # ports:
+    #   - ":"
+    # volumes:
+    #   - ./data:/data
+    # environment:
+    #   - VARIABLE=value

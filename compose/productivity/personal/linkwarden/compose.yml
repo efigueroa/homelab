@@ -1,0 +1,11 @@
+services:
+  linkwarden:
+    image: 
+    container_name: linkwarden
+    restart: unless-stopped
+    # ports:
+    #   - ":"
+    # volumes:
+    #   - ./data:/data
+    # environment:
+    #   - VARIABLE=value
