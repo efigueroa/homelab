@@ -1,11 +1,14 @@
+# https://docs.linuxserver.io/images/docker-freshrss/
+---
 services:
-  FreshRSS:
-    image: 
-    container_name: FreshRSS
+  freshrss:
+    image: lscr.io/linuxserver/freshrss:latest
+    container_name: freshrss
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - /path/to/freshrss/config:/config
+    ports:
+      - 8000:80
     restart: unless-stopped
-    # ports:
-    #   - ":"
-    # volumes:
-    #   - ./data:/data
-    # environment:
-    #   - VARIABLE=value

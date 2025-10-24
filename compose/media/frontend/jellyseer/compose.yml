@@ -1,11 +1,14 @@
+# https://hub.docker.com/r/fallenbagel/jellyseerr
 services:
-  jellyseer:
-    image: 
-    container_name: jellyseer
-    restart: unless-stopped
-    # ports:
-    #   - ":"
-    # volumes:
-    #   - ./data:/data
-    # environment:
-    #   - VARIABLE=value
+    jellyseerr:
+       image: fallenbagel/jellyseerr:latest
+       container_name: jellyseerr
+       environment:
+            - LOG_LEVEL=debug
+            - TZ=America/Los_Angeles
+       ports:
+            - 8002:5055
+       volumes:
+            - /path/to/appdata/config:/app/config
+       restart: unless-stopped
+
