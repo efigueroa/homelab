@@ -1,0 +1,57 @@
+# Homarr - Modern dashboard with Docker auto-discovery
+# Docs: https://homarr.dev/docs/getting-started/installation
+# GitHub: https://github.com/ajnart/homarr
+
+services:
+  homarr:
+    container_name: homarr
+    image: ghcr.io/ajnart/homarr:latest
+
+    environment:
+      # Timezone
+      - TZ=America/Los_Angeles
+
+      # Base path (if behind reverse proxy with path)
+      # - BASE_URL=/dashboard
+
+      # Port (default: 7575)
+      - PORT=7575
+
+      # Authentication
+      # - AUTH_PROVIDER=oidc  # For SSO integration
+      # - DEFAULT_COLOR_SCHEME=dark
+
+    volumes:
+      # Configuration and data
+      - ./config:/app/data/configs
+      - ./data:/data
+      - ./icons:/app/public/icons
+
+      # Docker socket for auto-discovery
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    restart: unless-stopped
+
+    networks:
+      - homelab
+
+    labels:
+      traefik.enable: true
+
+      # Web UI routing
+      traefik.http.routers.homarr.rule: Host(`home.fig.systems`) || Host(`home.edfig.dev`)
+      traefik.http.routers.homarr.entrypoints: websecure
+      traefik.http.routers.homarr.tls.certresolver: letsencrypt
+      traefik.http.services.homarr.loadbalancer.server.port: 7575
+
+      # SSO Protection (optional - dashboard may be public)
+      # traefik.http.routers.homarr.middlewares: tinyauth
+
+      # Homarr Labels for custom configuration
+      homarr.name: Homarr Dashboard
+      homarr.group: Infrastructure
+      homarr.icon: /icons/homarr.png
+
+networks:
+  homelab:
+    external: true

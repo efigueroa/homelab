@@ -1,0 +1,49 @@
+services:
+  backrest:
+    image: garethgeorge/backrest:latest
+    container_name: backrest
+    hostname: backrest
+    restart: unless-stopped
+
+    networks:
+      - homelab
+
+    volumes:
+      - ./data:/data
+      - ./config:/config
+      - ./cache:/cache
+      - /home/user/homelab/compose/media/frontend/immich/upload:/backups/immich:ro
+      - /home/user/homelab/compose:/backups/homelab-config:ro
+
+    environment:
+      - BACKREST_DATA=/data
+      - BACKREST_CONFIG=/config/config.json
+      - XDG_CACHE_HOME=/cache
+      - TZ=${TZ:-America/Los_Angeles}
+
+    labels:
+      # Traefik
+      traefik.enable: true
+      traefik.http.routers.backrest.rule: Host(`backup.fig.systems`) || Host(`backup.edfig.dev`)
+      traefik.http.routers.backrest.entrypoints: websecure
+      traefik.http.routers.backrest.tls.certresolver: letsencrypt
+      traefik.http.services.backrest.loadbalancer.server.port: 9898
+
+      # Require authentication
+      traefik.http.routers.backrest.middlewares: tinyauth
+
+      # Homarr Discovery
+      homarr.name: Backrest Backup
+      homarr.group: Services
+      homarr.icon: mdi:backup-restore
+
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9898/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  homelab:
+    external: true
