@@ -32,6 +32,8 @@ compose/
 │       ├── sabnzbd/    # Usenet downloader
 │       └── qbittorrent/# Torrent client
 └── services/       # Utility services
+    ├── homarr/         # Dashboard (home.fig.systems)
+    ├── backrest/       # Backup manager (backup.fig.systems)
     ├── linkwarden/     # Bookmark manager (links.fig.systems)
     ├── vikunja/        # Task management (tasks.fig.systems)
     ├── lubelogger/     # Vehicle tracker (garage.fig.systems)
@@ -56,6 +58,8 @@ All services are accessible via:
 | Traefik Dashboard | traefik.fig.systems | ✅ |
 | LLDAP | lldap.fig.systems | ✅ |
 | Tinyauth | auth.fig.systems | ❌ |
+| Homarr | home.fig.systems | ✅ |
+| Backrest | backup.fig.systems | ✅ |
 | Jellyfin | flix.fig.systems | ❌* |
 | Jellyseerr | requests.fig.systems | ✅ |
 | Immich | photos.fig.systems | ❌* |
@@ -143,6 +147,8 @@ cd compose/media/automation/qbittorrent && docker compose up -d
 # Utility services
 cd compose/services/linkwarden && docker compose up -d
 cd compose/services/vikunja && docker compose up -d
+cd compose/services/homarr && docker compose up -d
+cd compose/services/backrest && docker compose up -d
 cd compose/services/lubelogger && docker compose up -d
 cd compose/services/calibre-web && docker compose up -d
 cd compose/services/booklore && docker compose up -d

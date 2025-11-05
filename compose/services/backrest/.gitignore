@@ -1,0 +1,7 @@
+# Backrest data and cache
+data/
+config/
+cache/
+
+# Keep .env.example if created
+!.env.example

@@ -1,0 +1,118 @@
+# Service Name - Brief Description
+# Official Docs: https://docs.example.com
+# Docker Hub: https://hub.docker.com/r/example/service
+
+services:
+  service-name:
+    container_name: service-name
+    image: example/service:latest
+
+    # Environment Variables
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+      # Add service-specific variables here
+
+    # Optional: Use .env file for sensitive config
+    # env_file: .env
+
+    # Volumes - Persistent data storage
+    volumes:
+      - ./config:/config
+      - ./data:/data
+      # Add media folder mounts if needed:
+      # - /media/movies:/movies:ro
+      # - /media/books:/books:ro
+
+    # Ports (optional - prefer Traefik routing)
+    # ports:
+    #   - "8080:8080"
+
+    # Restart Policy
+    restart: unless-stopped
+
+    # Networks
+    networks:
+      - homelab
+      # Add internal network if multi-container:
+      # - service_internal
+
+    # Health Check (optional but recommended)
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 40s
+
+    # Dependencies (if needed)
+    # depends_on:
+    #   - database
+    #   - redis
+
+    # Traefik Labels - Web Access with SSL
+    labels:
+      traefik.enable: true
+
+      # Routing - Replace 'service' with actual service name
+      traefik.http.routers.service-name.rule: Host(`service.fig.systems`) || Host(`service.edfig.dev`)
+      traefik.http.routers.service-name.entrypoints: websecure
+      traefik.http.routers.service-name.tls.certresolver: letsencrypt
+
+      # Service port - Change to actual port
+      traefik.http.services.service-name.loadbalancer.server.port: 8080
+
+      # SSO Protection (optional - uncomment if needed)
+      traefik.http.routers.service-name.middlewares: tinyauth
+
+      # Network selection (if using multiple networks)
+      # traefik.docker.network: homelab
+
+# Optional: Database service (PostgreSQL example)
+#  database:
+#    container_name: service-name-db
+#    image: postgres:16-alpine
+#    environment:
+#      POSTGRES_DB: servicedb
+#      POSTGRES_USER: serviceuser
+#      POSTGRES_PASSWORD: ${DB_PASSWORD}
+#      TZ: America/Los_Angeles
+#    volumes:
+#      - ./db:/var/lib/postgresql/data
+#    restart: unless-stopped
+#    networks:
+#      - service_internal
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -h localhost -U $$POSTGRES_USER"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+
+# Optional: Redis cache
+#  redis:
+#    container_name: service-name-redis
+#    image: redis:alpine
+#    restart: unless-stopped
+#    networks:
+#      - service_internal
+#    healthcheck:
+#      test: ["CMD", "redis-cli", "ping"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 5
+
+# Networks
+networks:
+  homelab:
+    external: true
+
+  # Internal network (if multi-container service)
+  # service_internal:
+  #   name: service_internal
+  #   driver: bridge
+
+# Named Volumes (optional)
+# volumes:
+#   data:
+#   cache:
