@@ -40,10 +40,6 @@
 'traefik':
   - changed-files:
     - any-glob-to-any-file: 'compose/core/traefik/**/*'
-  - changed-files:
-    - any-glob-to-any-file: 'compose/**/compose.yaml'
-      changed-lines:
-      - pattern: 'traefik\.'
 
 'authentication':
   - changed-files:
@@ -54,7 +50,3 @@
 'dependencies':
   - changed-files:
     - any-glob-to-any-file: '**/compose.yaml'
-  - changed-files:
-    - any-glob-to-any-file: 'compose/**/compose.yaml'
-      changed-lines:
-      - pattern: 'image:'

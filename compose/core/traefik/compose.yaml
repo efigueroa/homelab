@@ -42,5 +42,4 @@ services:
 
 networks:
   homelab:
-    name: homelab
-    driver: bridge
+    external: true
