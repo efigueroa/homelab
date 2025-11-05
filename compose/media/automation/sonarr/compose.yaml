@@ -1,0 +1,33 @@
+# Sonarr - TV Show Management and Automation
+# Docs: https://wiki.servarr.com/sonarr
+
+services:
+  sonarr:
+    container_name: sonarr
+    image: lscr.io/linuxserver/sonarr:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+    volumes:
+      - ./config:/config
+      # Media library
+      - /media/tv:/media/tv
+      # Download folders
+      - /media/downloads:/downloads
+      - /media/complete:/complete
+      - /media/incomplete:/incomplete
+    restart: unless-stopped
+    networks:
+      - homelab
+    labels:
+      traefik.enable: true
+      traefik.http.routers.sonarr.rule: Host(`sonarr.fig.systems`) || Host(`sonarr.edfig.dev`)
+      traefik.http.routers.sonarr.entrypoints: websecure
+      traefik.http.routers.sonarr.tls.certresolver: letsencrypt
+      traefik.http.services.sonarr.loadbalancer.server.port: 8989
+      traefik.http.routers.sonarr.middlewares: tinyauth
+
+networks:
+  homelab:
+    external: true

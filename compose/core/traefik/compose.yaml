@@ -1,0 +1,45 @@
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:v3.3
+    command:
+      # API Settings
+      - --api.dashboard=true
+      # Provider Settings
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=homelab
+      # Entrypoints
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      # HTTP to HTTPS redirect
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      # Let's Encrypt Certificate Resolver
+      - --certificatesresolvers.letsencrypt.acme.email=admin@edfig.dev
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      # Logging
+      - --log.level=INFO
+      - --accesslog=true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    restart: unless-stopped
+    networks:
+      - homelab
+    labels:
+      traefik.enable: true
+      # Dashboard routing
+      traefik.http.routers.traefik.rule: Host(`traefik.fig.systems`) || Host(`traefik.edfig.dev`)
+      traefik.http.routers.traefik.entrypoints: websecure
+      traefik.http.routers.traefik.tls.certresolver: letsencrypt
+      traefik.http.routers.traefik.service: api@internal
+      traefik.http.routers.traefik.middlewares: tinyauth
+
+networks:
+  homelab:
+    external: true

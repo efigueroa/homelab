@@ -1,0 +1,53 @@
+---
+# yamllint configuration for Docker Compose files
+
+extends: default
+
+rules:
+  # Line length - Docker Compose files can have long lines (especially for commands)
+  line-length:
+    max: 200
+    level: warning
+
+  # Allow multiple spaces for alignment
+  colons:
+    max-spaces-after: 1
+
+  # Indentation - Docker Compose uses 2 spaces
+  indentation:
+    spaces: 2
+    indent-sequences: true
+
+  # Comments
+  comments:
+    min-spaces-from-content: 2
+
+  # Document start - not required for Docker Compose
+  document-start: disable
+
+  # Allow truthy values for Docker Compose (yes/no, true/false, on/off)
+  truthy:
+    allowed-values: ['true', 'false', 'yes', 'no', 'on', 'off']
+    check-keys: false
+
+  # Brackets
+  brackets:
+    min-spaces-inside: 0
+    max-spaces-inside: 0
+
+  # Allow empty values
+  empty-values:
+    forbid-in-block-mappings: false
+    forbid-in-flow-mappings: false
+
+  # Key ordering - not enforced
+  key-ordering: disable
+
+  # Allow duplicate keys (sometimes needed in Docker labels)
+  key-duplicates:
+    forbid-duplicated-merge-keys: true
+
+ignore: |
+  .github/
+  node_modules/
+  venv/

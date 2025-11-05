@@ -1,0 +1,28 @@
+# Jellyseerr - Media Request Management for Jellyfin
+# Docs: https://hub.docker.com/r/fallenbagel/jellyseerr
+
+services:
+  jellyseerr:
+    container_name: jellyseerr
+    image: fallenbagel/jellyseerr:latest
+    environment:
+      - LOG_LEVEL=info
+      - TZ=America/Los_Angeles
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./config:/app/config
+    restart: unless-stopped
+    networks:
+      - homelab
+    labels:
+      traefik.enable: true
+      traefik.http.routers.jellyseerr.rule: Host(`requests.fig.systems`) || Host(`requests.edfig.dev`)
+      traefik.http.routers.jellyseerr.entrypoints: websecure
+      traefik.http.routers.jellyseerr.tls.certresolver: letsencrypt
+      traefik.http.services.jellyseerr.loadbalancer.server.port: 5055
+      traefik.http.routers.jellyseerr.middlewares: tinyauth
+
+networks:
+  homelab:
+    external: true

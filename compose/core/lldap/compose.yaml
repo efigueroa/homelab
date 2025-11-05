@@ -1,0 +1,24 @@
+services:
+  lldap:
+    container_name: lldap
+    image: lldap/lldap:stable
+    ports:
+      - "3890:3890"  # LDAP
+      - "17170:17170"  # Web UI
+    env_file: .env
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+    networks:
+      - homelab
+    labels:
+      traefik.enable: true
+      traefik.http.routers.lldap.rule: Host(`lldap.fig.systems`) || Host(`lldap.edfig.dev`)
+      traefik.http.routers.lldap.entrypoints: websecure
+      traefik.http.routers.lldap.tls.certresolver: letsencrypt
+      traefik.http.services.lldap.loadbalancer.server.port: 17170
+      traefik.http.routers.lldap.middlewares: tinyauth
+
+networks:
+  homelab:
+    external: true

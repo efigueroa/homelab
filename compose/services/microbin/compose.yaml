@@ -1,11 +1,11 @@
+# MicroBin - Encrypted pastebin with file upload support
+# Docs: https://github.com/szabodanika/microbin
+
 services:
   microbin:
+    container_name: microbin
     image: danielszabo99/microbin:latest
-    restart: always
-    ports:
-     - "${MICROBIN_PORT}:8080"
-    volumes:
-     - ./microbin-data:/app/microbin_data
+    env_file: .env
     environment:
       MICROBIN_BASIC_AUTH_USERNAME: ${MICROBIN_BASIC_AUTH_USERNAME}
       MICROBIN_BASIC_AUTH_PASSWORD: ${MICROBIN_BASIC_AUTH_PASSWORD}
@@ -45,4 +45,20 @@ services:
       MICROBIN_ENCRYPTION_SERVER_SIDE: ${MICROBIN_ENCRYPTION_SERVER_SIDE}
       MICROBIN_MAX_FILE_SIZE_ENCRYPTED_MB: ${MICROBIN_MAX_FILE_SIZE_ENCRYPTED_MB}
       MICROBIN_MAX_FILE_SIZE_UNENCRYPTED_MB: ${MICROBIN_MAX_FILE_SIZE_UNENCRYPTED_MB}
+    volumes:
+      - ./microbin-data:/app/microbin_data
+    restart: always
+    networks:
+      - homelab
+    labels:
+      traefik.enable: true
+      traefik.http.routers.microbin.rule: Host(`paste.fig.systems`) || Host(`paste.edfig.dev`)
+      traefik.http.routers.microbin.entrypoints: websecure
+      traefik.http.routers.microbin.tls.certresolver: letsencrypt
+      traefik.http.services.microbin.loadbalancer.server.port: 8080
+      # Note: MicroBin has its own auth, SSO disabled by default
+      # traefik.http.routers.microbin.middlewares: tinyauth
 
+networks:
+  homelab:
+    external: true

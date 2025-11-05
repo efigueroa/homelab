@@ -1,0 +1,135 @@
+name: YAML Linting
+
+on:
+  pull_request:
+    paths:
+      - '**.yaml'
+      - '**.yml'
+      - '.yamllint.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - '**.yaml'
+      - '**.yml'
+
+jobs:
+  yamllint:
+    name: YAML Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Run yamllint
+        run: |
+          yamllint -f colored compose/
+
+      - name: Check YAML file extensions
+        run: |
+          echo "Checking for consistent YAML file extensions..."
+
+          # Find all YAML files
+          yaml_files=$(find . -name "*.yaml" -o -name "*.yml" | grep -v ".git" | grep -v "node_modules")
+
+          # Count by extension
+          yaml_count=$(find . -name "*.yaml" | grep -v ".git" | wc -l)
+          yml_count=$(find . -name "*.yml" | grep -v ".git" | wc -l)
+
+          echo "Files with .yaml extension: $yaml_count"
+          echo "Files with .yml extension: $yml_count"
+
+          # Check for any .yml files in compose directory (should be .yaml)
+          yml_in_compose=$(find compose -name "*.yml" 2>/dev/null | wc -l)
+
+          if [ $yml_in_compose -gt 0 ]; then
+            echo "❌ Found .yml files in compose directory (should be .yaml):"
+            find compose -name "*.yml"
+            exit 1
+          else
+            echo "✅ All compose files use .yaml extension"
+          fi
+
+  validate-yaml-structure:
+    name: Validate YAML Structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Validate YAML syntax
+        run: |
+          echo "Validating YAML syntax for all files..."
+          exit_code=0
+
+          yaml_files=$(find compose -name "*.yaml" -type f)
+
+          for file in $yaml_files; do
+            if yq eval '.' "$file" > /dev/null 2>&1; then
+              echo "✅ Valid YAML: $file"
+            else
+              echo "❌ Invalid YAML: $file"
+              yq eval '.' "$file"
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
+
+      - name: Check for Docker Compose version
+        run: |
+          echo "Checking for version field in compose files..."
+
+          yaml_files=$(find compose -name "compose.yaml" -type f)
+
+          for file in $yaml_files; do
+            # Docker Compose v2+ doesn't require version field
+            # But check if it's present and warn if it's old
+            version=$(yq eval '.version // "none"' "$file")
+
+            if [ "$version" != "none" ]; then
+              echo "⚠️  $file: Contains version field (not needed in Compose v2+)"
+              if [ "$version" = "2" ] || [ "$version" = "2.0" ]; then
+                echo "   Consider removing or updating to version 3+"
+              fi
+            fi
+          done
+
+      - name: Validate service names
+        run: |
+          echo "Checking service naming conventions..."
+
+          yaml_files=$(find compose -name "compose.yaml" -type f)
+
+          for file in $yaml_files; do
+            services=$(yq eval '.services | keys | .[]' "$file" 2>/dev/null)
+
+            for service in $services; do
+              # Check for invalid characters in service names
+              if echo "$service" | grep -qE '[^a-zA-Z0-9_-]'; then
+                echo "❌ $file: Service '$service' has invalid characters"
+                echo "   Service names should only contain: a-z, A-Z, 0-9, _, -"
+                exit 1
+              fi
+
+              # Check for recommended naming (lowercase with hyphens)
+              if echo "$service" | grep -qE '[A-Z]'; then
+                echo "⚠️  $file: Service '$service' contains uppercase (consider lowercase with hyphens)"
+              fi
+            done
+          done

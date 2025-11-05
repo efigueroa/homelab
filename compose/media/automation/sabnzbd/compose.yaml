@@ -1,0 +1,30 @@
+# SABnzbd - Usenet binary newsreader
+# Docs: https://docs.linuxserver.io/images/docker-sabnzbd/
+
+services:
+  sabnzbd:
+    container_name: sabnzbd
+    image: lscr.io/linuxserver/sabnzbd:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+    volumes:
+      - ./config:/config
+      - /media/downloads:/downloads
+      - /media/complete:/complete
+      - /media/incomplete:/incomplete
+    restart: unless-stopped
+    networks:
+      - homelab
+    labels:
+      traefik.enable: true
+      traefik.http.routers.sabnzbd.rule: Host(`sabnzbd.fig.systems`) || Host(`sabnzbd.edfig.dev`)
+      traefik.http.routers.sabnzbd.entrypoints: websecure
+      traefik.http.routers.sabnzbd.tls.certresolver: letsencrypt
+      traefik.http.services.sabnzbd.loadbalancer.server.port: 8080
+      traefik.http.routers.sabnzbd.middlewares: tinyauth
+
+networks:
+  homelab:
+    external: true

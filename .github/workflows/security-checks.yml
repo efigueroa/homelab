@@ -1,0 +1,194 @@
+name: Security Checks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  secret-scanning:
+    name: Secret Detection
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: false
+
+  env-file-validation:
+    name: Environment File Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for placeholder passwords
+        run: |
+          echo "Checking for placeholder passwords in .env files..."
+          exit_code=0
+
+          # Find all .env files
+          env_files=$(find compose -name ".env" -type f)
+
+          for env_file in $env_files; do
+            echo "Checking: $env_file"
+
+            # Check for common placeholder passwords
+            if grep -E "(changeme|password123|admin123|test123|example)" "$env_file" > /dev/null 2>&1; then
+              echo "⚠️  WARNING: $env_file contains placeholder passwords"
+              echo "   This is expected in the repository template."
+              echo "   Users should change these before deployment."
+            fi
+
+            # Check for actual leaked passwords (common patterns)
+            if grep -E "PASSWORD=.{20,}" "$env_file" | grep -v "changeme" > /dev/null 2>&1; then
+              echo "❌ ERROR: $env_file may contain a real password!"
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
+
+      - name: Validate environment file format
+        run: |
+          echo "Validating .env file format..."
+          exit_code=0
+
+          env_files=$(find compose -name ".env" -type f)
+
+          for env_file in $env_files; do
+            # Check for common .env issues
+            if grep -E "^\s+[A-Z_]+=.*" "$env_file" > /dev/null 2>&1; then
+              echo "❌ $env_file: Contains indented variables (should not be indented)"
+              exit_code=1
+            fi
+
+            if grep -E "^[A-Z_]+=\s+.*" "$env_file" > /dev/null 2>&1; then
+              echo "⚠️  $env_file: Contains space after = (may cause issues)"
+            fi
+
+            # Check for commented-out critical variables
+            if grep -E "^#\s*(DATABASE_URL|POSTGRES_PASSWORD|JWT_SECRET|SESSION_SECRET)=" "$env_file" > /dev/null 2>&1; then
+              echo "⚠️  $env_file: Critical variables are commented out"
+            fi
+          done
+
+          if [ $exit_code -eq 0 ]; then
+            echo "✅ All .env files are properly formatted"
+          fi
+
+          exit $exit_code
+
+  dockerfile-security:
+    name: Dockerfile Security Scan
+    runs-on: ubuntu-latest
+    if: false  # Disabled since we use pre-built images, enable if you add custom Dockerfiles
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: "**/Dockerfile"
+          failure-threshold: warning
+
+  container-image-scan:
+    name: Container Image Vulnerability Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract images from compose files
+        id: extract-images
+        run: |
+          echo "Extracting container images..."
+
+          # Extract unique images from all compose files
+          images=$(grep -h "^\s*image:" compose/**/compose.yaml | \
+            awk '{print $2}' | \
+            grep -v "^$" | \
+            sort -u)
+
+          echo "Found images:"
+          echo "$images"
+
+          # Save to file for next step
+          echo "$images" > images.txt
+
+          # Count images
+          image_count=$(echo "$images" | wc -l)
+          echo "total_images=$image_count" >> $GITHUB_OUTPUT
+
+      - name: Scan critical images with Trivy
+        run: |
+          # Install Trivy
+          sudo apt-get install wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo gpg --dearmor -o /usr/share/keyrings/trivy.gpg
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install trivy
+
+          # Scan a sample of critical images (to avoid long CI times)
+          critical_images=(
+            "traefik:v3.3"
+            "lldap/lldap:stable"
+            "ghcr.io/steveiliop56/tinyauth:latest"
+            "postgres:16-alpine"
+            "postgres:18"
+            "redis:alpine"
+          )
+
+          echo "Scanning critical images for HIGH and CRITICAL vulnerabilities..."
+
+          for image in "${critical_images[@]}"; do
+            # Check if image is used in our compose files
+            if grep -q "$image" images.txt 2>/dev/null; then
+              echo "Scanning: $image"
+              trivy image --severity HIGH,CRITICAL --exit-code 0 "$image" || true
+            fi
+          done
+
+      - name: Generate security report
+        if: always()
+        run: |
+          echo "# Security Scan Summary" > security-report.md
+          echo "" >> security-report.md
+          echo "## Images Scanned" >> security-report.md
+          echo "Total unique images: $(cat images.txt | wc -l)" >> security-report.md
+          echo "" >> security-report.md
+          echo "See job logs for detailed vulnerability information." >> security-report.md
+
+      - name: Upload security report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: security-report.md
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        continue-on-error: true  # Requires GitHub Advanced Security (not available for private repos without it)
+        with:
+          fail-on-severity: moderate

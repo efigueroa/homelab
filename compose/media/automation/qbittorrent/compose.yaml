@@ -1,0 +1,34 @@
+# qBittorrent - Bittorrent client with WebUI
+# Docs: https://docs.linuxserver.io/images/docker-qbittorrent/
+
+services:
+  qbittorrent:
+    container_name: qbittorrent
+    image: lscr.io/linuxserver/qbittorrent:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+      - WEBUI_PORT=8080
+    volumes:
+      - ./config:/config
+      - /media/downloads:/downloads
+      - /media/complete:/complete
+      - /media/incomplete:/incomplete
+    ports:
+      - "6881:6881"      # BitTorrent port
+      - "6881:6881/udp"  # BitTorrent DHT
+    restart: unless-stopped
+    networks:
+      - homelab
+    labels:
+      traefik.enable: true
+      traefik.http.routers.qbittorrent.rule: Host(`qbt.fig.systems`) || Host(`qbt.edfig.dev`)
+      traefik.http.routers.qbittorrent.entrypoints: websecure
+      traefik.http.routers.qbittorrent.tls.certresolver: letsencrypt
+      traefik.http.services.qbittorrent.loadbalancer.server.port: 8080
+      traefik.http.routers.qbittorrent.middlewares: tinyauth
+
+networks:
+  homelab:
+    external: true

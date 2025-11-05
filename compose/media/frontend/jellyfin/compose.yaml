@@ -1,42 +1,50 @@
-# Compose Docs:
-# https://jellyfin.org/docs/general/installation/container/?method=docker-compose
-# Transcoding Docs
-# https://jellyfin.org/docs/general/post-install/transcoding/hardware-acceleration/nvidia
+# Jellyfin Media Server
+# Docs: https://jellyfin.org/docs/general/installation/container/?method=docker-compose
+# Transcoding: https://jellyfin.org/docs/general/post-install/transcoding/hardware-acceleration/nvidia
+
 services:
   jellyfin:
-    image: jellyfin/jellyfin
     container_name: jellyfin
-    user: uid:gid
-    ports:
-      - 8096:8096/tcp
-      - 7359:7359/udp
-    volumes:
-      - /path/to/config:/config
-      - /path/to/cache:/cache
-      - type: bind
-        source: /path/to/media
-        target: /media
-      - type: bind
-        source: /path/to/media2
-        target: /media2
-        read_only: true
-      # Optional - extra fonts to be used during transcoding with subtitle burn-in
-      - type: bind
-        source: /path/to/fonts
-        target: /usr/local/share/fonts/custom
-        read_only: true
-    restart: 'unless-stopped'
-    # Optional - alternative address used for autodiscovery
+    image: lscr.io/linuxserver/jellyfin:latest
     environment:
-      - JELLYFIN_PublishedServerUrl=http://example.com
-    # Optional - may be necessary for docker healthcheck to pass if running in host network mode
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
-    runtime: nvidia
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+      - JELLYFIN_PublishedServerUrl=https://flix.fig.systems
+    volumes:
+      - ./config:/config
+      - ./cache:/cache
+      # Media folders (read-only)
+      - /media/movies:/media/movies:ro
+      - /media/tv:/media/tv:ro
+      - /media/music:/media/music:ro
+      - /media/photos:/media/photos:ro
+      - /media/homemovies:/media/homemovies:ro
+    ports:
+      - "8096:8096"
+      - "7359:7359/udp"  # Optional - for autodiscovery
+    restart: unless-stopped
+    networks:
+      - homelab
+    labels:
+      traefik.enable: true
+      traefik.http.routers.jellyfin.rule: Host(`flix.fig.systems`) || Host(`flix.edfig.dev`)
+      traefik.http.routers.jellyfin.entrypoints: websecure
+      traefik.http.routers.jellyfin.tls.certresolver: letsencrypt
+      traefik.http.services.jellyfin.loadbalancer.server.port: 8096
+      # Note: Jellyfin has its own auth system, SSO middleware disabled by default
+      # Uncomment the line below to enable SSO (requires users to auth via tinyauth first)
+      # traefik.http.routers.jellyfin.middlewares: tinyauth
+      # Uncomment for NVIDIA GPU transcoding
+    # runtime: nvidia
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+networks:
+  homelab:
+    external: true

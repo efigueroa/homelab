@@ -1,0 +1,52 @@
+# Auto labeler configuration for actions/labeler@v5
+
+'category: core':
+  - changed-files:
+    - any-glob-to-any-file: 'compose/core/**/*'
+
+'category: media':
+  - changed-files:
+    - any-glob-to-any-file: 'compose/media/**/*'
+
+'category: services':
+  - changed-files:
+    - any-glob-to-any-file: 'compose/services/**/*'
+
+'type: documentation':
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.md'
+      - 'docs/**/*'
+
+'type: configuration':
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.yaml'
+      - '**/*.yml'
+      - '**/*.env'
+
+'type: ci/cd':
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**/*'
+      - '.pre-commit-config.yaml'
+
+'security':
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.env'
+      - '**/secrets/**/*'
+
+'traefik':
+  - changed-files:
+    - any-glob-to-any-file: 'compose/core/traefik/**/*'
+
+'authentication':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'compose/core/lldap/**/*'
+      - 'compose/core/tinyauth/**/*'
+
+'dependencies':
+  - changed-files:
+    - any-glob-to-any-file: '**/compose.yaml'
