@@ -1,0 +1,47 @@
+# Auto labeler configuration
+
+'category: core':
+  - compose/core/**/*
+
+'category: media':
+  - compose/media/**/*
+
+'category: services':
+  - compose/services/**/*
+
+'type: documentation':
+  - '**/*.md'
+  - docs/**/*
+
+'type: configuration':
+  - '**/*.yaml'
+  - '**/*.yml'
+  - '**/*.env'
+
+'type: ci/cd':
+  - .github/**/*
+  - .pre-commit-config.yaml
+
+'security':
+  - '**/*.env'
+  - '**/secrets/**/*'
+
+'traefik':
+  - compose/core/traefik/**/*
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: 'compose/**/compose.yaml'
+        changed-lines:
+          - pattern: 'traefik\.'
+
+'authentication':
+  - compose/core/lldap/**/*
+  - compose/core/tinyauth/**/*
+
+'dependencies':
+  - '**/compose.yaml'
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: 'compose/**/compose.yaml'
+        changed-lines:
+          - pattern: 'image:'

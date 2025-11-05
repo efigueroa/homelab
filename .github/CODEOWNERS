@@ -1,0 +1,19 @@
+# CODEOWNERS file
+# These owners will be the default owners for everything in the repo
+
+# Global owners
+* @efigueroa
+
+# Core infrastructure requires careful review
+/compose/core/ @efigueroa
+
+# Security-sensitive files
+**/.env @efigueroa
+.github/workflows/security-checks.yml @efigueroa
+
+# Documentation
+/README.md @efigueroa
+/docs/ @efigueroa
+
+# CI/CD
+/.github/ @efigueroa

@@ -1,0 +1,65 @@
+# Pre-commit hooks for homelab repository
+# Install: pip install pre-commit
+# Setup: pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: '.md$'
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: ['--allow-multiple-documents']
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: mixed-line-ending
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        args: ['-c', '.yamllint.yml']
+        files: \.(yaml|yml)$
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.2
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.39.0
+    hooks:
+      - id: markdownlint
+        args: ['--config', '.markdownlint.json']
+
+  - repo: local
+    hooks:
+      - id: check-compose-filenames
+        name: Check compose file naming
+        entry: bash -c 'find compose -name "compose.yml" -o -name "docker-compose.yml" | grep . && exit 1 || exit 0'
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: check-placeholder-passwords
+        name: Check for non-placeholder passwords
+        entry: bash -c 'git diff --cached --name-only | grep "\.env$" | xargs grep -E "PASSWORD=.{20,}" | grep -v changeme && exit 1 || exit 0'
+        language: system
+        pass_filenames: false
+        always_run: false
+
+      - id: validate-traefik-labels
+        name: Validate Traefik labels
+        entry: bash -c 'for file in $(git diff --cached --name-only | grep "compose.yaml$"); do if grep -q "traefik.enable: true" "$file"; then grep -q "entrypoints: websecure" "$file" || { echo "Missing websecure entrypoint in $file"; exit 1; }; fi; done'
+        language: system
+        pass_filenames: false
+
+      - id: check-env-files
+        name: Check .env files exist for services with env_file
+        entry: bash -c 'for file in $(git diff --cached --name-only | grep "compose.yaml$"); do if grep -q "env_file:" "$file"; then dir=$(dirname "$file"); if [ ! -f "$dir/.env" ]; then echo "Missing .env file for $file"; exit 1; fi; fi; done'
+        language: system
+        pass_filenames: false

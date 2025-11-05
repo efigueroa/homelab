@@ -1,0 +1,159 @@
+name: Docker Compose Validation
+
+on:
+  pull_request:
+    paths:
+      - 'compose/**/*.yaml'
+      - 'compose/**/*.yml'
+      - '.github/workflows/docker-compose-validation.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'compose/**/*.yaml'
+      - 'compose/**/*.yml'
+
+jobs:
+  validate-compose-files:
+    name: Validate Docker Compose Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Find all compose files
+        id: find-files
+        run: |
+          echo "Finding all compose.yaml files..."
+          find compose -name "compose.yaml" -type f > compose-files.txt
+          cat compose-files.txt
+          echo "Found $(wc -l < compose-files.txt) compose files"
+
+      - name: Validate compose file syntax
+        run: |
+          echo "Validating Docker Compose files..."
+          exit_code=0
+
+          while IFS= read -r file; do
+            echo "Validating: $file"
+            if docker compose -f "$file" config > /dev/null 2>&1; then
+              echo "✅ Valid: $file"
+            else
+              echo "❌ Invalid: $file"
+              docker compose -f "$file" config
+              exit_code=1
+            fi
+          done < compose-files.txt
+
+          exit $exit_code
+
+      - name: Check for old .yml files
+        run: |
+          old_files=$(find compose -name "compose.yml" -o -name "docker-compose.yml" 2>/dev/null || true)
+          if [ -n "$old_files" ]; then
+            echo "❌ Found deprecated .yml files (should be .yaml):"
+            echo "$old_files"
+            exit 1
+          else
+            echo "✅ All compose files use .yaml extension"
+          fi
+
+      - name: Validate network references
+        run: |
+          echo "Checking network references..."
+          exit_code=0
+
+          while IFS= read -r file; do
+            # Check if file uses 'homelab' network
+            if grep -q "networks:" "$file"; then
+              if grep -q "homelab" "$file"; then
+                # Ensure it's marked as external
+                if grep -A 5 "^networks:" "$file" | grep -A 2 "homelab:" | grep -q "external: true"; then
+                  echo "✅ $file: homelab network properly marked as external"
+                else
+                  echo "⚠️  $file: homelab network should be marked as external: true"
+                  exit_code=1
+                fi
+              fi
+            fi
+          done < compose-files.txt
+
+          exit $exit_code
+
+      - name: Check for exposed ports
+        run: |
+          echo "Checking for unnecessary port exposures..."
+          files_with_ports=$(grep -l "ports:" compose/**/compose.yaml || true)
+
+          if [ -n "$files_with_ports" ]; then
+            echo "⚠️  Files with exposed ports (consider using Traefik only):"
+            echo "$files_with_ports"
+            echo ""
+            echo "This is a warning, not an error. Review if these ports need to be exposed."
+          else
+            echo "✅ No ports exposed (using Traefik for all routing)"
+          fi
+
+      - name: Validate Traefik labels
+        run: |
+          echo "Validating Traefik labels..."
+          exit_code=0
+
+          while IFS= read -r file; do
+            if grep -q "traefik.enable: true" "$file"; then
+              # Check for required labels
+              has_router=$(grep -q "traefik.http.routers\." "$file" && echo "yes" || echo "no")
+              has_entrypoint=$(grep -q "entrypoints: websecure" "$file" && echo "yes" || echo "no")
+              has_tls=$(grep -q "tls.certresolver: letsencrypt" "$file" && echo "yes" || echo "no")
+              has_rule=$(grep -q "\.rule: Host" "$file" && echo "yes" || echo "no")
+
+              if [ "$has_router" = "yes" ] && [ "$has_entrypoint" = "yes" ] && [ "$has_tls" = "yes" ] && [ "$has_rule" = "yes" ]; then
+                echo "✅ $file: Complete Traefik configuration"
+              else
+                echo "⚠️  $file: Incomplete Traefik configuration"
+                [ "$has_router" = "no" ] && echo "  - Missing router definition"
+                [ "$has_entrypoint" = "no" ] && echo "  - Missing websecure entrypoint"
+                [ "$has_tls" = "no" ] && echo "  - Missing TLS/Let's Encrypt config"
+                [ "$has_rule" = "no" ] && echo "  - Missing Host rule"
+                exit_code=1
+              fi
+            fi
+          done < compose-files.txt
+
+          exit $exit_code
+
+      - name: Check domain consistency
+        run: |
+          echo "Checking domain consistency..."
+
+          # Extract all domains from Traefik rules
+          domains=$(grep -h "rule: Host" compose/**/compose.yaml | grep -oP '`\K[^`]+' | sort -u)
+
+          echo "Configured domains:"
+          echo "$domains"
+
+          # Check that both fig.systems and edfig.dev are used
+          fig_systems_count=$(echo "$domains" | grep -c "fig.systems" || true)
+          edfig_dev_count=$(echo "$domains" | grep -c "edfig.dev" || true)
+
+          echo ""
+          echo "fig.systems domains: $fig_systems_count"
+          echo "edfig.dev domains: $edfig_dev_count"
+
+          # Check for services that don't have both domains
+          while IFS= read -r file; do
+            if grep -q "traefik.enable: true" "$file"; then
+              has_fig_systems=$(grep "rule: Host" "$file" | grep -c "fig.systems" || true)
+              has_edfig_dev=$(grep "rule: Host" "$file" | grep -c "edfig.dev" || true)
+
+              if [ "$has_fig_systems" -gt 0 ] && [ "$has_edfig_dev" -eq 0 ]; then
+                echo "⚠️  $file: Has fig.systems but missing edfig.dev"
+              elif [ "$has_edfig_dev" -gt 0 ] && [ "$has_fig_systems" -eq 0 ]; then
+                echo "⚠️  $file: Has edfig.dev but missing fig.systems"
+              fi
+            fi
+          done < compose-files.txt
