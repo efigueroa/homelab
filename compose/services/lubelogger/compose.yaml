@@ -1,0 +1,30 @@
+# LubeLogger - Vehicle maintenance and fuel tracking
+# Docs: https://github.com/hargata/lubelogger
+
+services:
+  lubelogger:
+    container_name: lubelogger
+    image: ghcr.io/hargata/lubelogger:latest
+    environment:
+      - TZ=America/Los_Angeles
+    volumes:
+      - data:/App/data
+      - keys:/root/.aspnet/DataProtection-Keys
+    restart: unless-stopped
+    networks:
+      - homelab
+    labels:
+      traefik.enable: true
+      traefik.http.routers.lubelogger.rule: Host(`garage.fig.systems`) || Host(`garage.edfig.dev`)
+      traefik.http.routers.lubelogger.entrypoints: websecure
+      traefik.http.routers.lubelogger.tls.certresolver: letsencrypt
+      traefik.http.services.lubelogger.loadbalancer.server.port: 8080
+      traefik.http.routers.lubelogger.middlewares: tinyauth
+
+networks:
+  homelab:
+    external: true
+
+volumes:
+  data:
+  keys:

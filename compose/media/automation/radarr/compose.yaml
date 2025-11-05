@@ -1,0 +1,33 @@
+# Radarr - Movie Management and Automation
+# Docs: https://wiki.servarr.com/radarr
+
+services:
+  radarr:
+    container_name: radarr
+    image: lscr.io/linuxserver/radarr:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+    volumes:
+      - ./config:/config
+      # Media library
+      - /media/movies:/media/movies
+      # Download folders
+      - /media/downloads:/downloads
+      - /media/complete:/complete
+      - /media/incomplete:/incomplete
+    restart: unless-stopped
+    networks:
+      - homelab
+    labels:
+      traefik.enable: true
+      traefik.http.routers.radarr.rule: Host(`radarr.fig.systems`) || Host(`radarr.edfig.dev`)
+      traefik.http.routers.radarr.entrypoints: websecure
+      traefik.http.routers.radarr.tls.certresolver: letsencrypt
+      traefik.http.services.radarr.loadbalancer.server.port: 7878
+      traefik.http.routers.radarr.middlewares: tinyauth
+
+networks:
+  homelab:
+    external: true

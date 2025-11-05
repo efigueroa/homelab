@@ -1,29 +1,64 @@
-# https://docs.linkwarden.app/self-hosting/installation
+# Linkwarden - Collaborative bookmark manager
+# Docs: https://docs.linkwarden.app/self-hosting/installation
+
 services:
-  postgres:
-    image: postgres:16-alpine
-    env_file: .env
-    restart: always
-    volumes:
-      - ./pgdata:/var/lib/postgresql/data
   linkwarden:
+    container_name: linkwarden
+    image: ghcr.io/linkwarden/linkwarden:latest
     env_file: .env
     environment:
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres
-    restart: always
-    # build: . # uncomment to build from source
-    image: ghcr.io/linkwarden/linkwarden:latest # comment to build from source
-    ports:
-      - 3000:3000
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@linkwarden-postgres:5432/postgres
+      - TZ=America/Los_Angeles
     volumes:
       - ./data:/data/data
     depends_on:
-      - postgres
-      - meilisearch
-  meilisearch:
-    image: getmeili/meilisearch:v1.12.8
+      - linkwarden-postgres
+      - linkwarden-meilisearch
     restart: always
-    env_file:
-      - .env
+    networks:
+      - homelab
+      - linkwarden_internal
+    labels:
+      traefik.enable: true
+      traefik.docker.network: homelab
+      traefik.http.routers.linkwarden.rule: Host(`links.fig.systems`) || Host(`links.edfig.dev`)
+      traefik.http.routers.linkwarden.entrypoints: websecure
+      traefik.http.routers.linkwarden.tls.certresolver: letsencrypt
+      traefik.http.services.linkwarden.loadbalancer.server.port: 3000
+      traefik.http.routers.linkwarden.middlewares: tinyauth
+
+  linkwarden-postgres:
+    container_name: linkwarden-postgres
+    image: postgres:16-alpine
+    env_file: .env
+    environment:
+      - TZ=America/Los_Angeles
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - linkwarden_internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  linkwarden-meilisearch:
+    container_name: linkwarden-meilisearch
+    image: getmeili/meilisearch:v1.12.8
+    env_file: .env
+    environment:
+      - TZ=America/Los_Angeles
     volumes:
       - ./meili_data:/meili_data
+    restart: always
+    networks:
+      - linkwarden_internal
+
+networks:
+  homelab:
+    external: true
+  linkwarden_internal:
+    name: linkwarden_internal
+    driver: bridge
