@@ -3,8 +3,8 @@ services:
     container_name: lldap
     image: lldap/lldap:stable
     ports:
-      - "3890:3890" # LDAP
-      - "17170:17170" # Web UI
+      - "3890:3890"  # LDAP
+      - "17170:17170"  # Web UI
     env_file: .env
     volumes:
       - ./data:/data

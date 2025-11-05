@@ -1,47 +1,60 @@
-# Auto labeler configuration
+# Auto labeler configuration for actions/labeler@v5
 
 'category: core':
-  - compose/core/**/*
+  - changed-files:
+    - any-glob-to-any-file: 'compose/core/**/*'
 
 'category: media':
-  - compose/media/**/*
+  - changed-files:
+    - any-glob-to-any-file: 'compose/media/**/*'
 
 'category: services':
-  - compose/services/**/*
+  - changed-files:
+    - any-glob-to-any-file: 'compose/services/**/*'
 
 'type: documentation':
-  - '**/*.md'
-  - docs/**/*
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.md'
+      - 'docs/**/*'
 
 'type: configuration':
-  - '**/*.yaml'
-  - '**/*.yml'
-  - '**/*.env'
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.yaml'
+      - '**/*.yml'
+      - '**/*.env'
 
 'type: ci/cd':
-  - .github/**/*
-  - .pre-commit-config.yaml
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**/*'
+      - '.pre-commit-config.yaml'
 
 'security':
-  - '**/*.env'
-  - '**/secrets/**/*'
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.env'
+      - '**/secrets/**/*'
 
 'traefik':
-  - compose/core/traefik/**/*
-  - any:
-    - changed-files:
-      - any-glob-to-any-file: 'compose/**/compose.yaml'
-        changed-lines:
-          - pattern: 'traefik\.'
+  - changed-files:
+    - any-glob-to-any-file: 'compose/core/traefik/**/*'
+  - changed-files:
+    - any-glob-to-any-file: 'compose/**/compose.yaml'
+      changed-lines:
+      - pattern: 'traefik\.'
 
 'authentication':
-  - compose/core/lldap/**/*
-  - compose/core/tinyauth/**/*
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'compose/core/lldap/**/*'
+      - 'compose/core/tinyauth/**/*'
 
 'dependencies':
-  - '**/compose.yaml'
-  - any:
-    - changed-files:
-      - any-glob-to-any-file: 'compose/**/compose.yaml'
-        changed-lines:
-          - pattern: 'image:'
+  - changed-files:
+    - any-glob-to-any-file: '**/compose.yaml'
+  - changed-files:
+    - any-glob-to-any-file: 'compose/**/compose.yaml'
+      changed-lines:
+      - pattern: 'image:'

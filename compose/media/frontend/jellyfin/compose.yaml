@@ -35,7 +35,7 @@ services:
       # Note: Jellyfin has its own auth system, SSO middleware disabled by default
       # Uncomment the line below to enable SSO (requires users to auth via tinyauth first)
       # traefik.http.routers.jellyfin.middlewares: tinyauth
-    # Uncomment for NVIDIA GPU transcoding
+      # Uncomment for NVIDIA GPU transcoding
     # runtime: nvidia
     # deploy:
     #   resources:

@@ -189,5 +189,6 @@ jobs:
 
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
+        continue-on-error: true  # Requires GitHub Advanced Security (not available for private repos without it)
         with:
           fail-on-severity: moderate
