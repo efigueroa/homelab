@@ -5,11 +5,8 @@ services:
   jellyseerr:
     container_name: jellyseerr
     image: fallenbagel/jellyseerr:latest
-    environment:
-      - LOG_LEVEL=info
-      - TZ=America/Los_Angeles
-      - PUID=1000
-      - PGID=1000
+    env_file:
+      - .env
     volumes:
       - ./config:/app/config
     restart: unless-stopped

@@ -5,10 +5,8 @@ services:
   sabnzbd:
     container_name: sabnzbd
     image: lscr.io/linuxserver/sabnzbd:latest
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Los_Angeles
+    env_file:
+      - .env
     volumes:
       - ./config:/config
       - /media/downloads:/downloads

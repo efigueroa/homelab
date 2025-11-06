@@ -6,9 +6,6 @@ services:
     container_name: linkwarden
     image: ghcr.io/linkwarden/linkwarden:latest
     env_file: .env
-    environment:
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@linkwarden-postgres:5432/postgres
-      - TZ=America/Los_Angeles
     volumes:
       - ./data:/data/data
     depends_on:
@@ -31,8 +28,6 @@ services:
     container_name: linkwarden-postgres
     image: postgres:16-alpine
     env_file: .env
-    environment:
-      - TZ=America/Los_Angeles
     volumes:
       - ./pgdata:/var/lib/postgresql/data
     restart: always
@@ -48,8 +43,6 @@ services:
     container_name: linkwarden-meilisearch
     image: getmeili/meilisearch:v1.12.8
     env_file: .env
-    environment:
-      - TZ=America/Los_Angeles
     volumes:
       - ./meili_data:/meili_data
     restart: always

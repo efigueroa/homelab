@@ -5,10 +5,8 @@ services:
   sonarr:
     container_name: sonarr
     image: lscr.io/linuxserver/sonarr:latest
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Los_Angeles
+    env_file:
+      - .env
     volumes:
       - ./config:/config
       # Media library

@@ -5,23 +5,7 @@ services:
   freshrss:
     container_name: freshrss
     image: lscr.io/linuxserver/freshrss:latest
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Los_Angeles
-    volumes:
-      - ./config:/config
-    restart: unless-stopped
-    networks:
-      - homelab
-    labels:
-      traefik.enable: true
-      traefik.http.routers.freshrss.rule: Host(`rss.fig.systems`) || Host(`rss.edfig.dev`)
-      traefik.http.routers.freshrss.entrypoints: websecure
-      traefik.http.routers.freshrss.tls.certresolver: letsencrypt
-      traefik.http.services.freshrss.loadbalancer.server.port: 80
-      traefik.http.routers.freshrss.middlewares: tinyauth
 
-networks:
-  homelab:
-    external: true
+    env_file:
+
+      - .env
