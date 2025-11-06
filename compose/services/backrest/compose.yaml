@@ -15,11 +15,8 @@ services:
       - /home/user/homelab/compose/media/frontend/immich/upload:/backups/immich:ro
       - /home/user/homelab/compose:/backups/homelab-config:ro
 
-    environment:
-      - BACKREST_DATA=/data
-      - BACKREST_CONFIG=/config/config.json
-      - XDG_CACHE_HOME=/cache
-      - TZ=${TZ:-America/Los_Angeles}
+    env_file:
+      - .env
 
     labels:
       # Traefik

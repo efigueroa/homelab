@@ -6,11 +6,8 @@ services:
   jellyfin:
     container_name: jellyfin
     image: lscr.io/linuxserver/jellyfin:latest
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Los_Angeles
-      - JELLYFIN_PublishedServerUrl=https://flix.fig.systems
+    env_file:
+      - .env
     volumes:
       - ./config:/config
       - ./cache:/cache
@@ -35,7 +32,9 @@ services:
       # Note: Jellyfin has its own auth system, SSO middleware disabled by default
       # Uncomment the line below to enable SSO (requires users to auth via tinyauth first)
       # traefik.http.routers.jellyfin.middlewares: tinyauth
-      # Uncomment for NVIDIA GPU transcoding
+
+    # Uncomment for NVIDIA GPU transcoding (GTX 1070)
+    # Requires NVIDIA Container Toolkit installed on host
     # runtime: nvidia
     # deploy:
     #   resources:

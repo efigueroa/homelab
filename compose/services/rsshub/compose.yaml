@@ -6,71 +6,7 @@ services:
     container_name: rsshub
     # Using chromium-bundled image for full puppeteer support
     image: diygod/rsshub:chromium-bundled
-    environment:
-      NODE_ENV: production
-      CACHE_TYPE: redis
-      REDIS_URL: redis://rsshub-redis:6379/
-      PUPPETEER_WS_ENDPOINT: ws://rsshub-browserless:3000
-      TZ: America/Los_Angeles
-    restart: always
-    networks:
-      - homelab
-      - rsshub_internal
-    depends_on:
-      - rsshub-redis
-      - rsshub-browserless
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:1200/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    labels:
-      traefik.enable: true
-      traefik.docker.network: homelab
-      traefik.http.routers.rsshub.rule: Host(`rsshub.fig.systems`) || Host(`rsshub.edfig.dev`)
-      traefik.http.routers.rsshub.entrypoints: websecure
-      traefik.http.routers.rsshub.tls.certresolver: letsencrypt
-      traefik.http.services.rsshub.loadbalancer.server.port: 1200
-      # Optional: enable SSO (may interfere with RSS readers)
-      # traefik.http.routers.rsshub.middlewares: tinyauth
 
-  rsshub-browserless:
-    container_name: rsshub-browserless
-    image: browserless/chrome
-    restart: always
-    networks:
-      - rsshub_internal
-    ulimits:
-      core:
-        hard: 0
-        soft: 0
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/pressure"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    env_file:
 
-  rsshub-redis:
-    container_name: rsshub-redis
-    image: redis:alpine
-    restart: always
-    networks:
-      - rsshub_internal
-    volumes:
-      - redis-data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 5s
-
-networks:
-  homelab:
-    external: true
-  rsshub_internal:
-    name: rsshub_internal
-    driver: bridge
-
-volumes:
-  redis-data:
+      - .env

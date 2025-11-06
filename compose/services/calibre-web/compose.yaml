@@ -5,26 +5,7 @@ services:
   calibre-web:
     container_name: calibre-web
     image: lscr.io/linuxserver/calibre-web:latest
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Los_Angeles
-      - DOCKER_MODS=linuxserver/mods:universal-calibre
-      - OAUTHLIB_RELAX_TOKEN_SCOPE=1
-    volumes:
-      - ./config:/config
-      - /media/books:/books
-    restart: unless-stopped
-    networks:
-      - homelab
-    labels:
-      traefik.enable: true
-      traefik.http.routers.calibre-web.rule: Host(`books.fig.systems`) || Host(`books.edfig.dev`)
-      traefik.http.routers.calibre-web.entrypoints: websecure
-      traefik.http.routers.calibre-web.tls.certresolver: letsencrypt
-      traefik.http.services.calibre-web.loadbalancer.server.port: 8083
-      traefik.http.routers.calibre-web.middlewares: tinyauth
 
-networks:
-  homelab:
-    external: true
+    env_file:
+
+      - .env

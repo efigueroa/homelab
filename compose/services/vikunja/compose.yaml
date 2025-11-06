@@ -5,15 +5,8 @@ services:
   vikunja:
     container_name: vikunja
     image: vikunja/vikunja:latest
-    environment:
-      VIKUNJA_SERVICE_PUBLICURL: https://tasks.fig.systems
-      VIKUNJA_DATABASE_HOST: vikunja-db
-      VIKUNJA_DATABASE_PASSWORD: changeme_please_set_secure_password
-      VIKUNJA_DATABASE_TYPE: postgres
-      VIKUNJA_DATABASE_USER: vikunja
-      VIKUNJA_DATABASE_DATABASE: vikunja
-      VIKUNJA_SERVICE_JWTSECRET: changeme_please_set_random_jwt_secret
-      TZ: America/Los_Angeles
+    env_file:
+      - .env
     volumes:
       - ./files:/app/vikunja/files
     depends_on:
@@ -35,11 +28,8 @@ services:
   vikunja-db:
     container_name: vikunja-db
     image: postgres:18
-    environment:
-      POSTGRES_PASSWORD: changeme_please_set_secure_password
-      POSTGRES_USER: vikunja
-      POSTGRES_DB: vikunja
-      TZ: America/Los_Angeles
+    env_file:
+      - .env
     volumes:
       - ./db:/var/lib/postgresql/data
     restart: unless-stopped
