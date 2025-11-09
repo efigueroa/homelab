@@ -32,10 +32,12 @@ compose/
 │       ├── sabnzbd/    # Usenet downloader
 │       └── qbittorrent/# Torrent client
 ├── monitoring/      # Monitoring & logging
-│   └── logging/     # Centralized logging stack
-│       ├── loki/        # Log aggregation (loki.fig.systems)
-│       ├── promtail/    # Log collection agent
-│       └── grafana/     # Log visualization (logs.fig.systems)
+│   ├── logging/     # Centralized logging stack
+│   │   ├── loki/        # Log aggregation (loki.fig.systems)
+│   │   ├── promtail/    # Log collection agent
+│   │   └── grafana/     # Log visualization (logs.fig.systems)
+│   └── uptime/      # Uptime monitoring
+│       └── uptime-kuma/ # Status & uptime monitoring (status.fig.systems)
 └── services/       # Utility services
     ├── homarr/         # Dashboard (home.fig.systems)
     ├── backrest/       # Backup manager (backup.fig.systems)
@@ -66,6 +68,7 @@ All services are accessible via:
 | **Monitoring** | | |
 | Grafana (Logs) | logs.fig.systems | ❌* |
 | Loki (API) | loki.fig.systems | ✅ |
+| Uptime Kuma (Status) | status.fig.systems | ❌* |
 | **Dashboard & Management** | | |
 | Homarr | home.fig.systems | ✅ |
 | Backrest | backup.fig.systems | ✅ |
@@ -161,6 +164,7 @@ cd compose/services/backrest && docker compose up -d
 
 # Monitoring (optional but recommended)
 cd compose/monitoring/logging && docker compose up -d
+cd compose/monitoring/uptime && docker compose up -d
 cd compose/services/lubelogger && docker compose up -d
 cd compose/services/calibre-web && docker compose up -d
 cd compose/services/booklore && docker compose up -d
