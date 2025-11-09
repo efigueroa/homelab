@@ -30,7 +30,9 @@ compose/
 │       ├── sonarr/     # TV show management
 │       ├── radarr/     # Movie management
 │       ├── sabnzbd/    # Usenet downloader
-│       └── qbittorrent/# Torrent client
+│       ├── qbittorrent/# Torrent client
+│       ├── recyclarr/  # TRaSH Guides sync
+│       └── profilarr/  # Profile manager (profilarr.fig.systems)
 ├── monitoring/      # Monitoring & logging
 │   ├── logging/     # Centralized logging stack
 │   │   ├── loki/        # Log aggregation (loki.fig.systems)
@@ -79,6 +81,7 @@ All services are accessible via:
 | Radarr | radarr.fig.systems | ✅ |
 | SABnzbd | sabnzbd.fig.systems | ✅ |
 | qBittorrent | qbt.fig.systems | ✅ |
+| Profilarr | profilarr.fig.systems | ✅ |
 | Linkwarden | links.fig.systems | ✅ |
 | Vikunja | tasks.fig.systems | ✅ |
 | LubeLogger | garage.fig.systems | ✅ |
@@ -155,6 +158,10 @@ cd compose/media/automation/sonarr && docker compose up -d
 cd compose/media/automation/radarr && docker compose up -d
 cd compose/media/automation/sabnzbd && docker compose up -d
 cd compose/media/automation/qbittorrent && docker compose up -d
+
+# Quality management (optional but recommended)
+cd compose/media/automation/recyclarr && docker compose up -d
+cd compose/media/automation/profilarr && docker compose up -d
 
 # Utility services
 cd compose/services/linkwarden && docker compose up -d

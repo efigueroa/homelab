@@ -1,0 +1,40 @@
+# Profilarr - Custom Format & Quality Profile Manager
+# Docs: https://dictionarry.dev
+
+services:
+  profilarr:
+    container_name: profilarr
+    image: santiagosayshey/profilarr:latest
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./data:/app/data
+
+    networks:
+      - homelab
+
+    labels:
+      # Traefik
+      traefik.enable: true
+      traefik.docker.network: homelab
+
+      # Web UI
+      traefik.http.routers.profilarr.rule: Host(`profilarr.fig.systems`) || Host(`profilarr.edfig.dev`)
+      traefik.http.routers.profilarr.entrypoints: websecure
+      traefik.http.routers.profilarr.tls.certresolver: letsencrypt
+      traefik.http.services.profilarr.loadbalancer.server.port: 6868
+
+      # SSO Protection
+      traefik.http.routers.profilarr.middlewares: tinyauth
+
+      # Homarr Discovery
+      homarr.name: Profilarr (Profiles)
+      homarr.group: Automation
+      homarr.icon: mdi:cog-sync
+
+networks:
+  homelab:
+    external: true
