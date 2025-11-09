@@ -30,12 +30,16 @@ compose/
 │       ├── sonarr/     # TV show management
 │       ├── radarr/     # Movie management
 │       ├── sabnzbd/    # Usenet downloader
-│       └── qbittorrent/# Torrent client
+│       ├── qbittorrent/# Torrent client
+│       ├── recyclarr/  # TRaSH Guides sync
+│       └── profilarr/  # Profile manager (profilarr.fig.systems)
 ├── monitoring/      # Monitoring & logging
-│   └── logging/     # Centralized logging stack
-│       ├── loki/        # Log aggregation (loki.fig.systems)
-│       ├── promtail/    # Log collection agent
-│       └── grafana/     # Log visualization (logs.fig.systems)
+│   ├── logging/     # Centralized logging stack
+│   │   ├── loki/        # Log aggregation (loki.fig.systems)
+│   │   ├── promtail/    # Log collection agent
+│   │   └── grafana/     # Log visualization (logs.fig.systems)
+│   └── uptime/      # Uptime monitoring
+│       └── uptime-kuma/ # Status & uptime monitoring (status.fig.systems)
 └── services/       # Utility services
     ├── homarr/         # Dashboard (home.fig.systems)
     ├── backrest/       # Backup manager (backup.fig.systems)
@@ -66,6 +70,7 @@ All services are accessible via:
 | **Monitoring** | | |
 | Grafana (Logs) | logs.fig.systems | ❌* |
 | Loki (API) | loki.fig.systems | ✅ |
+| Uptime Kuma (Status) | status.fig.systems | ❌* |
 | **Dashboard & Management** | | |
 | Homarr | home.fig.systems | ✅ |
 | Backrest | backup.fig.systems | ✅ |
@@ -76,6 +81,7 @@ All services are accessible via:
 | Radarr | radarr.fig.systems | ✅ |
 | SABnzbd | sabnzbd.fig.systems | ✅ |
 | qBittorrent | qbt.fig.systems | ✅ |
+| Profilarr | profilarr.fig.systems | ✅ |
 | Linkwarden | links.fig.systems | ✅ |
 | Vikunja | tasks.fig.systems | ✅ |
 | LubeLogger | garage.fig.systems | ✅ |
@@ -153,6 +159,10 @@ cd compose/media/automation/radarr && docker compose up -d
 cd compose/media/automation/sabnzbd && docker compose up -d
 cd compose/media/automation/qbittorrent && docker compose up -d
 
+# Quality management (optional but recommended)
+cd compose/media/automation/recyclarr && docker compose up -d
+cd compose/media/automation/profilarr && docker compose up -d
+
 # Utility services
 cd compose/services/linkwarden && docker compose up -d
 cd compose/services/vikunja && docker compose up -d
@@ -161,6 +171,7 @@ cd compose/services/backrest && docker compose up -d
 
 # Monitoring (optional but recommended)
 cd compose/monitoring/logging && docker compose up -d
+cd compose/monitoring/uptime && docker compose up -d
 cd compose/services/lubelogger && docker compose up -d
 cd compose/services/calibre-web && docker compose up -d
 cd compose/services/booklore && docker compose up -d

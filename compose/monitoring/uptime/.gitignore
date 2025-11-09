@@ -1,0 +1,5 @@
+# Uptime Kuma data
+data/
+
+# Keep .env.example if created
+!.env.example

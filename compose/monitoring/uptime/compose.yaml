@@ -1,0 +1,48 @@
+# Uptime Kuma - Status and Uptime Monitoring
+# Docs: https://github.com/louislam/uptime-kuma
+
+services:
+  uptime-kuma:
+    container_name: uptime-kuma
+    image: louislam/uptime-kuma:1
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./data:/app/data
+
+    networks:
+      - homelab
+
+    labels:
+      # Traefik
+      traefik.enable: true
+      traefik.docker.network: homelab
+
+      # Web UI
+      traefik.http.routers.uptime-kuma.rule: Host(`status.fig.systems`) || Host(`status.edfig.dev`)
+      traefik.http.routers.uptime-kuma.entrypoints: websecure
+      traefik.http.routers.uptime-kuma.tls.certresolver: letsencrypt
+      traefik.http.services.uptime-kuma.loadbalancer.server.port: 3001
+
+      # SSO Protection (optional - Uptime Kuma has its own auth)
+      # Uncomment to require SSO:
+      # traefik.http.routers.uptime-kuma.middlewares: tinyauth
+
+      # Homarr Discovery
+      homarr.name: Uptime Kuma (Status)
+      homarr.group: Monitoring
+      homarr.icon: mdi:heart-pulse
+
+    healthcheck:
+      test: ["CMD-SHELL", "node extra/healthcheck.js"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  homelab:
+    external: true

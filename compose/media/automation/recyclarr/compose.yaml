@@ -1,0 +1,32 @@
+# Recyclarr - Sync TRaSH Guides to Radarr/Sonarr
+# Docs: https://recyclarr.dev
+
+services:
+  recyclarr:
+    container_name: recyclarr
+    image: ghcr.io/recyclarr/recyclarr:latest
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./config:/config
+
+    networks:
+      - homelab
+
+    # Run sync on startup and every 6 hours
+    # Use cron schedule: "0 */6 * * *" for every 6 hours
+    environment:
+      - CRON_SCHEDULE=0 */6 * * *
+
+    labels:
+      # Homarr Discovery
+      homarr.name: Recyclarr (Quality Sync)
+      homarr.group: Automation
+      homarr.icon: mdi:recycle
+
+networks:
+  homelab:
+    external: true

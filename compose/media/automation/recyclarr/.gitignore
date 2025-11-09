@@ -1,0 +1,5 @@
+# Recyclarr config and data
+config/
+
+# Keep .env.example if created
+!.env.example
