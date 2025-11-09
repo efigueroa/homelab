@@ -1,0 +1,123 @@
+# Centralized Logging Stack - Loki + Promtail + Grafana
+# Docs: https://grafana.com/docs/loki/latest/
+
+services:
+  loki:
+    container_name: loki
+    image: grafana/loki:2.9.3
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - ./loki-data:/loki
+
+    command: -config.file=/etc/loki/local-config.yaml
+
+    networks:
+      - homelab
+      - logging_internal
+
+    labels:
+      # Traefik (for API access)
+      traefik.enable: true
+      traefik.docker.network: homelab
+
+      # Loki API
+      traefik.http.routers.loki.rule: Host(`loki.fig.systems`) || Host(`loki.edfig.dev`)
+      traefik.http.routers.loki.entrypoints: websecure
+      traefik.http.routers.loki.tls.certresolver: letsencrypt
+      traefik.http.services.loki.loadbalancer.server.port: 3100
+
+      # SSO Protection
+      traefik.http.routers.loki.middlewares: tinyauth
+
+      # Homarr Discovery
+      homarr.name: Loki (Logs)
+      homarr.group: Monitoring
+      homarr.icon: mdi:math-log
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  promtail:
+    container_name: promtail
+    image: grafana/promtail:2.9.3
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./promtail-config.yaml:/etc/promtail/config.yaml:ro
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    command: -config.file=/etc/promtail/config.yaml
+
+    networks:
+      - logging_internal
+
+    depends_on:
+      loki:
+        condition: service_healthy
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:10.2.3
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./grafana-data:/var/lib/grafana
+      - ./grafana-provisioning:/etc/grafana/provisioning
+
+    networks:
+      - homelab
+      - logging_internal
+
+    depends_on:
+      loki:
+        condition: service_healthy
+
+    labels:
+      # Traefik
+      traefik.enable: true
+      traefik.docker.network: homelab
+
+      # Grafana Web UI
+      traefik.http.routers.grafana.rule: Host(`logs.fig.systems`) || Host(`logs.edfig.dev`)
+      traefik.http.routers.grafana.entrypoints: websecure
+      traefik.http.routers.grafana.tls.certresolver: letsencrypt
+      traefik.http.services.grafana.loadbalancer.server.port: 3000
+
+      # SSO Protection (optional - Grafana has its own auth)
+      # traefik.http.routers.grafana.middlewares: tinyauth
+
+      # Homarr Discovery
+      homarr.name: Grafana (Logs Dashboard)
+      homarr.group: Monitoring
+      homarr.icon: mdi:chart-line
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  homelab:
+    external: true
+  logging_internal:
+    name: logging_internal
+    driver: bridge

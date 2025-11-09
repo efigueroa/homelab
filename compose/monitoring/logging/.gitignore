@@ -1,0 +1,13 @@
+# Loki data
+loki-data/
+
+# Grafana data
+grafana-data/
+
+# Keep provisioning and config files
+!grafana-provisioning/
+!loki-config.yaml
+!promtail-config.yaml
+
+# Keep .env.example if created
+!.env.example

@@ -31,6 +31,11 @@ compose/
 │       ├── radarr/     # Movie management
 │       ├── sabnzbd/    # Usenet downloader
 │       └── qbittorrent/# Torrent client
+├── monitoring/      # Monitoring & logging
+│   └── logging/     # Centralized logging stack
+│       ├── loki/        # Log aggregation (loki.fig.systems)
+│       ├── promtail/    # Log collection agent
+│       └── grafana/     # Log visualization (logs.fig.systems)
 └── services/       # Utility services
     ├── homarr/         # Dashboard (home.fig.systems)
     ├── backrest/       # Backup manager (backup.fig.systems)
@@ -58,6 +63,10 @@ All services are accessible via:
 | Traefik Dashboard | traefik.fig.systems | ✅ |
 | LLDAP | lldap.fig.systems | ✅ |
 | Tinyauth | auth.fig.systems | ❌ |
+| **Monitoring** | | |
+| Grafana (Logs) | logs.fig.systems | ❌* |
+| Loki (API) | loki.fig.systems | ✅ |
+| **Dashboard & Management** | | |
 | Homarr | home.fig.systems | ✅ |
 | Backrest | backup.fig.systems | ✅ |
 | Jellyfin | flix.fig.systems | ❌* |
@@ -149,6 +158,9 @@ cd compose/services/linkwarden && docker compose up -d
 cd compose/services/vikunja && docker compose up -d
 cd compose/services/homarr && docker compose up -d
 cd compose/services/backrest && docker compose up -d
+
+# Monitoring (optional but recommended)
+cd compose/monitoring/logging && docker compose up -d
 cd compose/services/lubelogger && docker compose up -d
 cd compose/services/calibre-web && docker compose up -d
 cd compose/services/booklore && docker compose up -d
