@@ -43,7 +43,8 @@ compose/
 └── services/       # Utility services
     ├── homarr/         # Dashboard (home.fig.systems)
     ├── backrest/       # Backup manager (backup.fig.systems)
-    ├── linkwarden/     # Bookmark manager (links.fig.systems)
+    ├── karakeep/       # Bookmark manager with AI (links.fig.systems)
+    ├── ollama/         # Local LLM server (ollama.fig.systems)
     ├── vikunja/        # Task management (tasks.fig.systems)
     ├── lubelogger/     # Vehicle tracker (garage.fig.systems)
     ├── calibre-web/    # Ebook library (books.fig.systems)
@@ -82,7 +83,8 @@ All services are accessible via:
 | SABnzbd | sabnzbd.fig.systems | ✅ |
 | qBittorrent | qbt.fig.systems | ✅ |
 | Profilarr | profilarr.fig.systems | ✅ |
-| Linkwarden | links.fig.systems | ✅ |
+| Karakeep | links.fig.systems | ✅ |
+| Ollama (API) | ollama.fig.systems | ✅ |
 | Vikunja | tasks.fig.systems | ✅ |
 | LubeLogger | garage.fig.systems | ✅ |
 | Calibre-web | books.fig.systems | ✅ |
@@ -164,7 +166,8 @@ cd compose/media/automation/recyclarr && docker compose up -d
 cd compose/media/automation/profilarr && docker compose up -d
 
 # Utility services
-cd compose/services/linkwarden && docker compose up -d
+cd compose/services/karakeep && docker compose up -d
+cd compose/services/ollama && docker compose up -d
 cd compose/services/vikunja && docker compose up -d
 cd compose/services/homarr && docker compose up -d
 cd compose/services/backrest && docker compose up -d

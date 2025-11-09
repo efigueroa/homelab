@@ -1,0 +1,50 @@
+<Config>
+  <!-- Radarr Configuration Example -->
+  <!-- This file will be auto-generated on first run -->
+  <!-- Copy to ./config/config.xml and modify as needed -->
+
+  <Port>7878</Port>
+  <SslPort>9897</SslPort>
+  <EnableSsl>False</EnableSsl>
+  <LaunchBrowser>False</LaunchBrowser>
+  <ApiKey>GENERATED_ON_FIRST_RUN</ApiKey>
+
+  <AuthenticationMethod>None</AuthenticationMethod>
+  <!-- Options: None, Basic, Forms, External -->
+  <!-- Use External when behind Traefik with SSO -->
+
+  <UrlBase></UrlBase>
+  <!-- Set to /radarr if using a path-based proxy -->
+
+  <UpdateMechanism>Docker</UpdateMechanism>
+  <Branch>master</Branch>
+  <!-- Options: master (stable), develop (beta), nightly -->
+
+  <LogLevel>info</LogLevel>
+  <!-- Options: trace, debug, info, warn, error, fatal -->
+
+  <!-- Analytics (optional) -->
+  <AnalyticsEnabled>False</AnalyticsEnabled>
+
+  <!-- Backup -->
+  <BackupFolder>/config/Backups</BackupFolder>
+  <BackupInterval>7</BackupInterval>
+  <BackupRetention>28</BackupRetention>
+
+  <!-- Proxy Settings (if needed) -->
+  <ProxyEnabled>False</ProxyEnabled>
+  <ProxyType>Http</ProxyType>
+  <ProxyHostname></ProxyHostname>
+  <ProxyPort>8080</ProxyPort>
+  <ProxyUsername></ProxyUsername>
+  <ProxyPassword></ProxyPassword>
+  <ProxyBypassFilter></ProxyBypassFilter>
+  <ProxyBypassLocalAddresses>True</ProxyBypassLocalAddresses>
+
+  <!-- Radarr-specific settings -->
+  <MinimumAge>0</MinimumAge>
+  <!-- Delay before grabbing release (in minutes) -->
+
+  <Retention>0</Retention>
+  <!-- Maximum age of usenet posts (0 = unlimited) -->
+</Config>

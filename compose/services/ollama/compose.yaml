@@ -1,0 +1,53 @@
+# Ollama - Run Large Language Models Locally
+# Docs: https://ollama.ai
+
+services:
+  ollama:
+    container_name: ollama
+    image: ollama/ollama:latest
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./models:/root/.ollama
+
+    networks:
+      - homelab
+
+    # GPU Support (NVIDIA GTX 1070)
+    # Uncomment the deploy section below to enable GPU acceleration
+    # Prerequisites:
+    # 1. Install NVIDIA Container Toolkit on host
+    # 2. Configure Docker to use nvidia runtime
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+    labels:
+      # Traefik (API only, no web UI)
+      traefik.enable: true
+      traefik.docker.network: homelab
+
+      # API endpoint
+      traefik.http.routers.ollama.rule: Host(`ollama.fig.systems`) || Host(`ollama.edfig.dev`)
+      traefik.http.routers.ollama.entrypoints: websecure
+      traefik.http.routers.ollama.tls.certresolver: letsencrypt
+      traefik.http.services.ollama.loadbalancer.server.port: 11434
+
+      # SSO Protection for API
+      traefik.http.routers.ollama.middlewares: tinyauth
+
+      # Homarr Discovery
+      homarr.name: Ollama (LLM)
+      homarr.group: Services
+      homarr.icon: mdi:brain
+
+networks:
+  homelab:
+    external: true

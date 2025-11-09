@@ -1,0 +1,43 @@
+<Config>
+  <!-- Sonarr Configuration Example -->
+  <!-- This file will be auto-generated on first run -->
+  <!-- Copy to ./config/config.xml and modify as needed -->
+
+  <Port>8989</Port>
+  <SslPort>9898</SslPort>
+  <EnableSsl>False</EnableSsl>
+  <LaunchBrowser>False</LaunchBrowser>
+  <ApiKey>GENERATED_ON_FIRST_RUN</ApiKey>
+
+  <AuthenticationMethod>None</AuthenticationMethod>
+  <!-- Options: None, Basic, Forms, External -->
+  <!-- Use External when behind Traefik with SSO -->
+
+  <UrlBase></UrlBase>
+  <!-- Set to /sonarr if using a path-based proxy -->
+
+  <UpdateMechanism>Docker</UpdateMechanism>
+  <Branch>main</Branch>
+  <!-- Options: main (stable), develop (beta) -->
+
+  <LogLevel>info</LogLevel>
+  <!-- Options: trace, debug, info, warn, error, fatal -->
+
+  <!-- Analytics (optional) -->
+  <AnalyticsEnabled>False</AnalyticsEnabled>
+
+  <!-- Backup -->
+  <BackupFolder>/config/Backups</BackupFolder>
+  <BackupInterval>7</BackupInterval>
+  <BackupRetention>28</BackupRetention>
+
+  <!-- Proxy Settings (if needed) -->
+  <ProxyEnabled>False</ProxyEnabled>
+  <ProxyType>Http</ProxyType>
+  <ProxyHostname></ProxyHostname>
+  <ProxyPort>8080</ProxyPort>
+  <ProxyUsername></ProxyUsername>
+  <ProxyPassword></ProxyPassword>
+  <ProxyBypassFilter></ProxyBypassFilter>
+  <ProxyBypassLocalAddresses>True</ProxyBypassLocalAddresses>
+</Config>

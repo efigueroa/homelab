@@ -1,0 +1,6 @@
+# Karakeep data
+data/
+meili_data/
+
+# Keep .env.example if created
+!.env.example

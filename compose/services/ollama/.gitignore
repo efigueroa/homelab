@@ -1,0 +1,5 @@
+# Ollama models and data
+models/
+
+# Keep .env.example if created
+!.env.example
