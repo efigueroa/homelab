@@ -11,7 +11,7 @@ services:
     labels:
       traefik.enable: true
       # Web UI routing
-      traefik.http.routers.tinyauth.rule: Host(`auth.fig.systems`) || Host(`auth.edfig.dev`)
+      traefik.http.routers.tinyauth.rule: Host(`auth.fig.systems`)
       traefik.http.routers.tinyauth.entrypoints: websecure
       traefik.http.routers.tinyauth.tls.certresolver: letsencrypt
       traefik.http.routers.tinyauth.service: tinyauth-ui

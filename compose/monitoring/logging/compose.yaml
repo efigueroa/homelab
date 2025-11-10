@@ -26,7 +26,7 @@ services:
       traefik.docker.network: homelab
 
       # Loki API
-      traefik.http.routers.loki.rule: Host(`loki.fig.systems`) || Host(`loki.edfig.dev`)
+      traefik.http.routers.loki.rule: Host(`loki.fig.systems`)
       traefik.http.routers.loki.entrypoints: websecure
       traefik.http.routers.loki.tls.certresolver: letsencrypt
       traefik.http.services.loki.loadbalancer.server.port: 3100
@@ -95,7 +95,7 @@ services:
       traefik.docker.network: homelab
 
       # Grafana Web UI
-      traefik.http.routers.grafana.rule: Host(`logs.fig.systems`) || Host(`logs.edfig.dev`)
+      traefik.http.routers.grafana.rule: Host(`logs.fig.systems`)
       traefik.http.routers.grafana.entrypoints: websecure
       traefik.http.routers.grafana.tls.certresolver: letsencrypt
       traefik.http.services.grafana.loadbalancer.server.port: 3000

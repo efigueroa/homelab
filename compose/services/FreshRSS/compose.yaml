@@ -22,7 +22,7 @@ services:
       traefik.docker.network: homelab
 
       # Web UI
-      traefik.http.routers.freshrss.rule: Host(`rss.fig.systems`) || Host(`rss.edfig.dev`)
+      traefik.http.routers.freshrss.rule: Host(`rss.fig.systems`)
       traefik.http.routers.freshrss.entrypoints: websecure
       traefik.http.routers.freshrss.tls.certresolver: letsencrypt
       traefik.http.services.freshrss.loadbalancer.server.port: 80

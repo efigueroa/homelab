@@ -34,7 +34,7 @@ services:
     labels:
       traefik.enable: true
       # Dashboard routing
-      traefik.http.routers.traefik.rule: Host(`traefik.fig.systems`) || Host(`traefik.edfig.dev`)
+      traefik.http.routers.traefik.rule: Host(`traefik.fig.systems`)
       traefik.http.routers.traefik.entrypoints: websecure
       traefik.http.routers.traefik.tls.certresolver: letsencrypt
       traefik.http.routers.traefik.service: api@internal

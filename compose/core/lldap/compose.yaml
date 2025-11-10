@@ -13,7 +13,7 @@ services:
       - homelab
     labels:
       traefik.enable: true
-      traefik.http.routers.lldap.rule: Host(`lldap.fig.systems`) || Host(`lldap.edfig.dev`)
+      traefik.http.routers.lldap.rule: Host(`lldap.fig.systems`)
       traefik.http.routers.lldap.entrypoints: websecure
       traefik.http.routers.lldap.tls.certresolver: letsencrypt
       traefik.http.services.lldap.loadbalancer.server.port: 17170

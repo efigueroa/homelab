@@ -22,7 +22,7 @@ services:
       traefik.docker.network: homelab
 
       # Web UI
-      traefik.http.routers.microbin.rule: Host(`paste.fig.systems`) || Host(`paste.edfig.dev`)
+      traefik.http.routers.microbin.rule: Host(`paste.fig.systems`)
       traefik.http.routers.microbin.entrypoints: websecure
       traefik.http.routers.microbin.tls.certresolver: letsencrypt
       traefik.http.services.microbin.loadbalancer.server.port: 8080

@@ -23,7 +23,7 @@ services:
       traefik.docker.network: homelab
 
       # Web UI
-      traefik.http.routers.rsshub.rule: Host(`rsshub.fig.systems`) || Host(`rsshub.edfig.dev`)
+      traefik.http.routers.rsshub.rule: Host(`rsshub.fig.systems`)
       traefik.http.routers.rsshub.entrypoints: websecure
       traefik.http.routers.rsshub.tls.certresolver: letsencrypt
       traefik.http.services.rsshub.loadbalancer.server.port: 1200

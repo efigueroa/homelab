@@ -25,7 +25,7 @@ services:
       - homelab
     labels:
       traefik.enable: true
-      traefik.http.routers.jellyfin.rule: Host(`flix.fig.systems`) || Host(`flix.edfig.dev`)
+      traefik.http.routers.jellyfin.rule: Host(`flix.fig.systems`)
       traefik.http.routers.jellyfin.entrypoints: websecure
       traefik.http.routers.jellyfin.tls.certresolver: letsencrypt
       traefik.http.services.jellyfin.loadbalancer.server.port: 8096

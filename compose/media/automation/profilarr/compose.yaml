@@ -22,7 +22,7 @@ services:
       traefik.docker.network: homelab
 
       # Web UI
-      traefik.http.routers.profilarr.rule: Host(`profilarr.fig.systems`) || Host(`profilarr.edfig.dev`)
+      traefik.http.routers.profilarr.rule: Host(`profilarr.fig.systems`)
       traefik.http.routers.profilarr.entrypoints: websecure
       traefik.http.routers.profilarr.tls.certresolver: letsencrypt
       traefik.http.services.profilarr.loadbalancer.server.port: 6868

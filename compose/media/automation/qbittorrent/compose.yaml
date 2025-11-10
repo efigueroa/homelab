@@ -20,7 +20,7 @@ services:
       - homelab
     labels:
       traefik.enable: true
-      traefik.http.routers.qbittorrent.rule: Host(`qbt.fig.systems`) || Host(`qbt.edfig.dev`)
+      traefik.http.routers.qbittorrent.rule: Host(`qbt.fig.systems`)
       traefik.http.routers.qbittorrent.entrypoints: websecure
       traefik.http.routers.qbittorrent.tls.certresolver: letsencrypt
       traefik.http.services.qbittorrent.loadbalancer.server.port: 8080

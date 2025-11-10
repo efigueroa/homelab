@@ -28,7 +28,7 @@ services:
       traefik.docker.network: homelab
 
       # Web UI
-      traefik.http.routers.karakeep.rule: Host(`links.fig.systems`) || Host(`links.edfig.dev`)
+      traefik.http.routers.karakeep.rule: Host(`links.fig.systems`)
       traefik.http.routers.karakeep.entrypoints: websecure
       traefik.http.routers.karakeep.tls.certresolver: letsencrypt
       traefik.http.services.karakeep.loadbalancer.server.port: 3000

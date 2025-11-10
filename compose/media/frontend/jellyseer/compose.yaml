@@ -14,7 +14,7 @@ services:
       - homelab
     labels:
       traefik.enable: true
-      traefik.http.routers.jellyseerr.rule: Host(`requests.fig.systems`) || Host(`requests.edfig.dev`)
+      traefik.http.routers.jellyseerr.rule: Host(`requests.fig.systems`)
       traefik.http.routers.jellyseerr.entrypoints: websecure
       traefik.http.routers.jellyseerr.tls.certresolver: letsencrypt
       traefik.http.services.jellyseerr.loadbalancer.server.port: 5055

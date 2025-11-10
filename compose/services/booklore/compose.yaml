@@ -22,7 +22,7 @@ services:
       traefik.docker.network: homelab
 
       # Web UI
-      traefik.http.routers.booklore.rule: Host(`booklore.fig.systems`) || Host(`booklore.edfig.dev`)
+      traefik.http.routers.booklore.rule: Host(`booklore.fig.systems`)
       traefik.http.routers.booklore.entrypoints: websecure
       traefik.http.routers.booklore.tls.certresolver: letsencrypt
       traefik.http.services.booklore.loadbalancer.server.port: 3000

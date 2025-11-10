@@ -21,7 +21,7 @@ services:
     labels:
       # Traefik
       traefik.enable: true
-      traefik.http.routers.backrest.rule: Host(`backup.fig.systems`) || Host(`backup.edfig.dev`)
+      traefik.http.routers.backrest.rule: Host(`backup.fig.systems`)
       traefik.http.routers.backrest.entrypoints: websecure
       traefik.http.routers.backrest.tls.certresolver: letsencrypt
       traefik.http.services.backrest.loadbalancer.server.port: 9898

@@ -19,7 +19,7 @@ services:
     labels:
       traefik.enable: true
       traefik.docker.network: homelab
-      traefik.http.routers.vikunja.rule: Host(`tasks.fig.systems`) || Host(`tasks.edfig.dev`)
+      traefik.http.routers.vikunja.rule: Host(`tasks.fig.systems`)
       traefik.http.routers.vikunja.entrypoints: websecure
       traefik.http.routers.vikunja.tls.certresolver: letsencrypt
       traefik.http.services.vikunja.loadbalancer.server.port: 3456

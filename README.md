@@ -60,6 +60,7 @@ compose/
 └── services/       # Utility services
     ├── homarr/         # Dashboard (home.fig.systems)
     ├── backrest/       # Backup manager (backup.fig.systems)
+    ├── static-sites/   # Static websites (Caddy)
     ├── karakeep/       # Bookmark manager with AI (links.fig.systems)
     ├── ollama/         # Local LLM server (ollama.fig.systems)
     ├── vikunja/        # Task management (tasks.fig.systems)
@@ -74,9 +75,21 @@ compose/
 
 ## 🌐 Domains
 
-All services are accessible via:
-- Primary: `*.fig.systems`
-- Secondary: `*.edfig.dev`
+Three domains are used with different purposes:
+
+### fig.systems (Homelab Services)
+Primary domain for all self-hosted homelab services:
+- `*.fig.systems` - All services listed below
+
+### edfig.dev (Professional/Public)
+Professional and public-facing sites:
+- `edfig.dev` / `www.edfig.dev` - Personal website/portfolio
+- `blog.edfig.dev` - Technical blog
+
+### figgy.foo (Experimental/Private)
+Testing and experimental services:
+- `figgy.foo` - Experimental lab (SSO protected)
+- `*.figgy.foo` - Test instances of services
 
 ### Service URLs
 
@@ -85,6 +98,10 @@ All services are accessible via:
 | Traefik Dashboard | traefik.fig.systems | ✅ |
 | LLDAP | lldap.fig.systems | ✅ |
 | Tinyauth | auth.fig.systems | ❌ |
+| **Static Sites** | | |
+| Personal Site | edfig.dev | ❌ |
+| Blog | blog.edfig.dev | ❌ |
+| Experimental Lab | figgy.foo | ✅ |
 | **Monitoring** | | |
 | Grafana (Logs) | logs.fig.systems | ❌* |
 | Loki (API) | loki.fig.systems | ✅ |
@@ -183,6 +200,7 @@ cd compose/media/automation/recyclarr && docker compose up -d
 cd compose/media/automation/profilarr && docker compose up -d
 
 # Utility services
+cd compose/services/static-sites && docker compose up -d  # Static websites (edfig.dev, blog, figgy.foo)
 cd compose/services/karakeep && docker compose up -d
 cd compose/services/ollama && docker compose up -d
 cd compose/services/vikunja && docker compose up -d

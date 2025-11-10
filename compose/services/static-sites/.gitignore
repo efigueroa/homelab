@@ -1,0 +1,10 @@
+# Caddy data and config
+caddy_data/
+caddy_config/
+
+# Keep example sites but ignore actual site content
+# (uncomment if you want to version control your sites)
+# sites/
+
+# Keep .env.example if created
+!.env.example
