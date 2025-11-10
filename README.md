@@ -2,6 +2,23 @@
 
 This repository contains Docker Compose configurations for self-hosted home services.
 
+## 💻 Hardware Specifications
+
+- **Host**: Proxmox VE 9 (Debian 13)
+  - CPU: AMD Ryzen 5 7600X (6 cores, 12 threads, up to 5.3 GHz)
+  - GPU: NVIDIA GeForce GTX 1070 (8GB VRAM)
+  - RAM: 32GB DDR5
+
+- **VM**: AlmaLinux 9.6 (RHEL 9 compatible)
+  - CPU: 8 vCPUs
+  - RAM: 24GB
+  - Storage: 500GB+ (expandable)
+  - GPU: GTX 1070 (PCIe passthrough)
+
+**Documentation:**
+- [Complete Architecture Guide](docs/architecture.md) - Integration, networking, logging, GPU setup
+- [AlmaLinux VM Setup](docs/setup/almalinux-vm.md) - Full installation and configuration guide
+
 ## 🏗️ Infrastructure
 
 ### Core Services (Port 80/443)
@@ -199,8 +216,20 @@ Each service has its own `.env` file where applicable. Key files to review:
 - `core/lldap/.env` - LDAP configuration and admin credentials
 - `core/tinyauth/.env` - LDAP connection and session settings
 - `media/frontend/immich/.env` - Photo management configuration
-- `services/linkwarden/.env` - Bookmark manager settings
+- `services/karakeep/.env` - AI-powered bookmark manager
+- `services/ollama/.env` - Local LLM configuration
 - `services/microbin/.env` - Pastebin configuration
+
+**Example Configuration Files:**
+Several services include `.example` config files for reference:
+- `media/automation/sonarr/config.xml.example`
+- `media/automation/radarr/config.xml.example`
+- `media/automation/sabnzbd/sabnzbd.ini.example`
+- `media/automation/qbittorrent/qBittorrent.conf.example`
+- `services/vikunja/config.yml.example`
+- `services/FreshRSS/config.php.example`
+
+Copy these to the appropriate location (usually `./config/`) and customize as needed.
 
 ## 🔧 Maintenance
 
@@ -240,6 +269,83 @@ Important data locations:
 1. Verify tinyauth is running: `docker ps | grep tinyauth`
 2. Check LLDAP connection in tinyauth logs
 3. Verify LDAP bind credentials match in both services
+
+### GPU not detected
+1. Check GPU passthrough: `lspci | grep -i nvidia`
+2. Verify drivers: `nvidia-smi`
+3. Test in container: `docker exec ollama nvidia-smi`
+4. See [AlmaLinux VM Setup](docs/setup/almalinux-vm.md) for GPU configuration
+
+## 📊 Monitoring & Logging
+
+### Centralized Logging (Loki + Promtail + Grafana)
+
+All container logs are automatically collected and stored in Loki:
+
+**Access Grafana**: https://logs.fig.systems
+
+**Query examples:**
+```logql
+# View logs for specific service
+{container="sonarr"}
+
+# Filter by log level
+{container="radarr"} |= "ERROR"
+
+# Multiple services
+{container=~"sonarr|radarr"}
+
+# Search with JSON parsing
+{container="karakeep"} |= "ollama" | json
+```
+
+**Retention**: 30 days (configurable in `compose/monitoring/logging/loki-config.yaml`)
+
+### Uptime Monitoring (Uptime Kuma)
+
+Monitor service availability and performance:
+
+**Access Uptime Kuma**: https://status.fig.systems
+
+**Features:**
+- HTTP(s) monitoring for all web services
+- Docker container health checks
+- SSL certificate expiration alerts
+- Public/private status pages
+- 90+ notification integrations (Discord, Slack, Email, etc.)
+
+### Service Integration
+
+**How services integrate:**
+
+```
+Traefik (Reverse Proxy)
+  ├─→ All services (SSL + routing)
+  └─→ Let's Encrypt (certificates)
+
+Tinyauth (SSO)
+  ├─→ LLDAP (user authentication)
+  └─→ Protected services (authorization)
+
+Promtail (Log Collection)
+  ├─→ Docker socket (all containers)
+  └─→ Loki (log storage)
+
+Loki (Log Storage)
+  └─→ Grafana (visualization)
+
+Karakeep (Bookmarks)
+  ├─→ Ollama (AI tagging)
+  ├─→ Meilisearch (search)
+  └─→ Chrome (web archiving)
+
+Sonarr/Radarr (Media Automation)
+  ├─→ SABnzbd/qBittorrent (downloads)
+  ├─→ Jellyfin (media library)
+  └─→ Recyclarr/Profilarr (quality management)
+```
+
+See [Architecture Guide](docs/architecture.md) for complete integration details.
 
 ## 📄 License
 

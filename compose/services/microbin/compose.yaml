@@ -5,16 +5,35 @@ services:
   microbin:
     container_name: microbin
     image: danielszabo99/microbin:latest
-    env_file: .env
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./data:/app/data
+
+    networks:
       - homelab
+
     labels:
+      # Traefik
       traefik.enable: true
+      traefik.docker.network: homelab
+
+      # Web UI
       traefik.http.routers.microbin.rule: Host(`paste.fig.systems`) || Host(`paste.edfig.dev`)
       traefik.http.routers.microbin.entrypoints: websecure
       traefik.http.routers.microbin.tls.certresolver: letsencrypt
       traefik.http.services.microbin.loadbalancer.server.port: 8080
+
       # Note: MicroBin has its own auth, SSO disabled by default
       # traefik.http.routers.microbin.middlewares: tinyauth
+
+      # Homarr Discovery
+      homarr.name: MicroBin
+      homarr.group: Services
+      homarr.icon: mdi:content-paste
 
 networks:
   homelab:
