@@ -59,9 +59,15 @@ variable "disk_size" {
 }
 
 variable "storage" {
-  description = "Storage pool name"
+  description = "Storage pool name for VM disks"
   type        = string
   default     = "local-lvm"
+}
+
+variable "snippets_storage" {
+  description = "Storage pool name for cloud-init snippets (must support 'snippets' content type)"
+  type        = string
+  default     = "local"
 }
 
 variable "network_bridge" {

@@ -1,0 +1,52 @@
+# Terraform / OpenTofu
+**/.terraform/
+**/.terraform.lock.hcl
+**/*.tfstate
+**/*.tfstate.backup
+**/*.tfstate.*.backup
+**/crash.log
+**/crash.*.log
+**/.terraformrc
+**/terraform.rc
+**/override.tf
+**/override.tf.json
+**/*_override.tf
+**/*_override.tf.json
+**/.terraform.tfstate.lock.info
+
+# Keep encrypted state files
+!**/*.tfstate.enc
+
+# SOPS
+.sops/key.txt
+**/.decrypted~*
+
+# Environment files with secrets
+**/.env
+!**/.env.example
+
+# Sensitive data directories
+**/data/
+**/config/
+!**/config/*.example
+!**/config/.gitkeep
+
+# Logs
+**/logs/
+**/*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Editor files
+.vscode/
+.idea/
+*.sublime-*
+
+# Temporary files
+*.tmp
+*.temp
