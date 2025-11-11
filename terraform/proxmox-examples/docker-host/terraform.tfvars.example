@@ -32,3 +32,34 @@ vm_ssh_keys = [
 vm_timezone = "America/Los_Angeles"
 clone_homelab_repo = true
 github_username = "efigueroa"
+
+# Operating System
+# Options: "ubuntu", "almalinux", "debian"
+vm_os_type = "almalinux"
+
+# GPU Passthrough (NVIDIA GTX 1070)
+# Enable GPU passthrough for services like Jellyfin, Ollama, Immich
+# Requires: AMD IOMMU enabled in Proxmox host GRUB
+# Set to true to enable GPU passthrough
+enable_gpu_passthrough = false
+
+# GPU PCI ID - Find with: lspci | grep -i nvidia
+# Example: 0000:01:00 (use .0 for GPU, .1 for audio)
+gpu_pci_id = "0000:01:00"
+
+# Media Directory Mounts via NFS
+# Mount media directories from Proxmox host to VM
+# Requires NFS server configured on Proxmox host
+mount_media_directories = true
+
+# Proxmox host IP for NFS mounts (not the API URL)
+# This is the IP address the VM will use to connect to NFS
+proxmox_host_ip = "192.168.1.1"
+
+# Source path on Proxmox host for media directories
+# Subdirectories: audiobooks, books, comics, complete, downloads,
+#                 homemovies, incomplete, movies, music, photos, tv
+media_source_path = "/data/media"
+
+# Mount path in VM (where media directories will be accessible)
+media_mount_path = "/media"
