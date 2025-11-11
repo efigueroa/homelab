@@ -4,6 +4,9 @@ pm_api_token_id     = "root@pam!terraform"
 pm_api_token_secret = "your-secret-here"
 pm_tls_insecure     = true
 
+# SSH username for Proxmox host (for uploading cloud-init snippets)
+pm_ssh_username = "root"
+
 # Proxmox Configuration
 proxmox_node = "pve"
 template_vm_id = 9000

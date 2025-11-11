@@ -18,7 +18,8 @@ provider "proxmox" {
   insecure = var.pm_tls_insecure
 
   ssh {
-    agent = true
+    agent    = true
+    username = var.pm_ssh_username
   }
 }
 

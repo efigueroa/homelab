@@ -203,8 +203,25 @@ nano terraform.tfvars
 
 **Required changes:**
 - `pm_api_token_secret` - Your Proxmox API secret
+- `pm_ssh_username` - SSH username for Proxmox host (usually "root")
 - `vm_ssh_keys` - Your SSH public key
 - `vm_password` - Set a secure password
+
+**Important:** Before running terraform, ensure you have SSH access:
+```bash
+# Test SSH access to Proxmox
+ssh root@proxmox.local
+
+# If prompted for password, set up key-based auth:
+ssh-copy-id root@proxmox.local
+
+# Start ssh-agent and add your key
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_rsa  # or id_ed25519, etc.
+
+# Verify key is loaded
+ssh-add -L
+```
 
 **Optional changes:**
 - `vm_name` - Change VM name
@@ -513,26 +530,49 @@ pvesm add dir local-snippets --path /var/lib/vz/snippets --content snippets
 
 ### SSH Authentication Failed
 
-Error: `failed to open SSH client: unable to authenticate`
+Error: `failed to open SSH client: unable to authenticate user "" over SSH`
 
-**Cause:** The Proxmox provider needs SSH access to upload cloud-init files
+**Cause:** The Proxmox provider needs SSH access to upload cloud-init files. This error occurs when:
+1. SSH username is not set
+2. SSH key is not in ssh-agent
+3. SSH key is not authorized on Proxmox host
 
-**Solution 1 - Add SSH key to Proxmox (Recommended):**
+**Solution - Complete SSH Setup:**
 ```bash
-# On your workstation, generate SSH key if you don't have one
+# 1. Generate SSH key if you don't have one
 ssh-keygen -t ed25519 -C "terraform@homelab"
+# Save to: /home/youruser/.ssh/id_ed25519
 
-# Copy to Proxmox host
-ssh-copy-id root@proxmox.local
+# 2. Copy to Proxmox host (replace with your actual Proxmox IP)
+ssh-copy-id root@10.0.0.169
 
-# Add key to ssh-agent
+# 3. Start ssh-agent (REQUIRED!)
 eval "$(ssh-agent -s)"
+
+# 4. Add your key to ssh-agent (REQUIRED!)
 ssh-add ~/.ssh/id_ed25519
 
-# Verify
+# 5. Verify key is loaded
 ssh-add -L
-ssh root@proxmox.local "echo 'SSH works!'"
+# Should show your public key
+
+# 6. Test SSH connection
+ssh root@10.0.0.169 "echo 'SSH works!'"
+# Should succeed without password
+
+# 7. Ensure pm_ssh_username is set in terraform.tfvars
+# pm_ssh_username = "root"
+
+# 8. Now run terraform
+./scripts/tf apply
 ```
+
+**Common Issues:**
+
+- **ssh-agent not running:** Run `eval "$(ssh-agent -s)"` in your current terminal
+- **Key not added:** Run `ssh-add ~/.ssh/id_ed25519` (or id_rsa)
+- **Wrong username:** Check `pm_ssh_username` in terraform.tfvars matches your Proxmox SSH user
+- **Key not authorized:** Run `ssh-copy-id` again to ensure key is in ~/.ssh/authorized_keys on Proxmox
 
 **Solution 2 - Use API token only (workaround):**
 
