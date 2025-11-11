@@ -208,19 +208,51 @@ nano terraform.tfvars
 - `vm_password` - Set a secure password
 
 **Important:** Before running terraform, ensure you have SSH access:
-```bash
-# Test SSH access to Proxmox
-ssh root@proxmox.local
 
-# If prompted for password, set up key-based auth:
+**Option A - Root SSH (if enabled):**
+```bash
+# Set in terraform.tfvars
+pm_ssh_username = "root"
+
+# Set up key-based auth
 ssh-copy-id root@proxmox.local
 
 # Start ssh-agent and add your key
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_rsa  # or id_ed25519, etc.
 
-# Verify key is loaded
-ssh-add -L
+# Verify
+ssh root@proxmox.local "echo 'SSH works!'"
+```
+
+**Option B - Non-root user with sudo (recommended for security):**
+```bash
+# Set in terraform.tfvars
+pm_ssh_username = "eduardo"  # Your username
+
+# Set up key-based auth for your user
+ssh-copy-id eduardo@proxmox.local
+
+# On Proxmox host, ensure your user can write to snippets directory
+ssh eduardo@proxmox.local
+sudo usermod -aG www-data eduardo  # Add to www-data group
+sudo chmod g+w /var/lib/vz/snippets
+sudo chown root:www-data /var/lib/vz/snippets
+
+# OR set up passwordless sudo for snippet uploads (more secure)
+sudo visudo -f /etc/sudoers.d/terraform-snippets
+# Add this line (replace 'eduardo' with your username):
+# eduardo ALL=(ALL) NOPASSWD: /usr/bin/tee /var/lib/vz/snippets/*
+
+# Exit Proxmox and test locally
+exit
+
+# Start ssh-agent and add your key
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_rsa  # or id_ed25519, etc.
+
+# Verify SSH and write access
+ssh eduardo@proxmox.local "ls -la /var/lib/vz/snippets"
 ```
 
 **Optional changes:**
@@ -538,12 +570,13 @@ Error: `failed to open SSH client: unable to authenticate user "" over SSH`
 3. SSH key is not authorized on Proxmox host
 
 **Solution - Complete SSH Setup:**
+
+**For root user:**
 ```bash
 # 1. Generate SSH key if you don't have one
 ssh-keygen -t ed25519 -C "terraform@homelab"
-# Save to: /home/youruser/.ssh/id_ed25519
 
-# 2. Copy to Proxmox host (replace with your actual Proxmox IP)
+# 2. Copy to Proxmox host
 ssh-copy-id root@10.0.0.169
 
 # 3. Start ssh-agent (REQUIRED!)
@@ -552,18 +585,44 @@ eval "$(ssh-agent -s)"
 # 4. Add your key to ssh-agent (REQUIRED!)
 ssh-add ~/.ssh/id_ed25519
 
-# 5. Verify key is loaded
-ssh-add -L
-# Should show your public key
-
-# 6. Test SSH connection
+# 5. Test SSH connection
 ssh root@10.0.0.169 "echo 'SSH works!'"
-# Should succeed without password
 
-# 7. Ensure pm_ssh_username is set in terraform.tfvars
-# pm_ssh_username = "root"
+# 6. Set in terraform.tfvars
+pm_ssh_username = "root"
 
-# 8. Now run terraform
+# 7. Run terraform
+./scripts/tf apply
+```
+
+**For non-root user (if root SSH is disabled):**
+```bash
+# 1. Generate SSH key if you don't have one
+ssh-keygen -t ed25519 -C "terraform@homelab"
+
+# 2. Copy to Proxmox host (use your username)
+ssh-copy-id eduardo@10.0.0.169
+
+# 3. Configure write permissions on Proxmox
+ssh eduardo@10.0.0.169
+sudo usermod -aG www-data eduardo
+sudo chmod g+w /var/lib/vz/snippets
+sudo chown root:www-data /var/lib/vz/snippets
+exit
+
+# 4. Start ssh-agent (REQUIRED!)
+eval "$(ssh-agent -s)"
+
+# 5. Add your key to ssh-agent (REQUIRED!)
+ssh-add ~/.ssh/id_ed25519
+
+# 6. Test SSH and permissions
+ssh eduardo@10.0.0.169 "touch /var/lib/vz/snippets/test.txt && rm /var/lib/vz/snippets/test.txt"
+
+# 7. Set in terraform.tfvars
+pm_ssh_username = "eduardo"  # Your username
+
+# 8. Run terraform
 ./scripts/tf apply
 ```
 
@@ -573,6 +632,7 @@ ssh root@10.0.0.169 "echo 'SSH works!'"
 - **Key not added:** Run `ssh-add ~/.ssh/id_ed25519` (or id_rsa)
 - **Wrong username:** Check `pm_ssh_username` in terraform.tfvars matches your Proxmox SSH user
 - **Key not authorized:** Run `ssh-copy-id` again to ensure key is in ~/.ssh/authorized_keys on Proxmox
+- **Permission denied writing snippets (non-root user):** Ensure your user has write access to `/var/lib/vz/snippets` (see non-root setup steps above)
 
 **Solution 2 - Use API token only (workaround):**
 

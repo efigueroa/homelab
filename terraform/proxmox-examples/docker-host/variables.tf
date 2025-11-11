@@ -23,7 +23,7 @@ variable "pm_tls_insecure" {
 }
 
 variable "pm_ssh_username" {
-  description = "SSH username for Proxmox host (used for uploading cloud-init files)"
+  description = "SSH username for Proxmox host (used for uploading cloud-init files). Use your personal user if root SSH is disabled."
   type        = string
   default     = "root"
 }

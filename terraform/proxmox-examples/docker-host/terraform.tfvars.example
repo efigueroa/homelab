@@ -5,6 +5,8 @@ pm_api_token_secret = "your-secret-here"
 pm_tls_insecure     = true
 
 # SSH username for Proxmox host (for uploading cloud-init snippets)
+# If root SSH is disabled, use your personal user (must have sudo access)
+# Example: pm_ssh_username = "eduardo"
 pm_ssh_username = "root"
 
 # Proxmox Configuration
