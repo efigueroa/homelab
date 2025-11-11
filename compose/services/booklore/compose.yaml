@@ -5,7 +5,36 @@ services:
   booklore:
     container_name: booklore
     image: ghcr.io/lorebooks/booklore:latest
+    restart: unless-stopped
 
     env_file:
-
       - .env
+
+    volumes:
+      - ./data:/app/data
+
+    networks:
+      - homelab
+
+    labels:
+      # Traefik
+      traefik.enable: true
+      traefik.docker.network: homelab
+
+      # Web UI
+      traefik.http.routers.booklore.rule: Host(`booklore.fig.systems`)
+      traefik.http.routers.booklore.entrypoints: websecure
+      traefik.http.routers.booklore.tls.certresolver: letsencrypt
+      traefik.http.services.booklore.loadbalancer.server.port: 3000
+
+      # SSO Protection
+      traefik.http.routers.booklore.middlewares: tinyauth
+
+      # Homarr Discovery
+      homarr.name: Booklore
+      homarr.group: Services
+      homarr.icon: mdi:book-open-variant
+
+networks:
+  homelab:
+    external: true

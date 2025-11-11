@@ -1,0 +1,137 @@
+# SABnzbd Configuration Example
+# This file will be auto-generated on first run
+# Copy to ./config/sabnzbd.ini and modify as needed
+# Docs: https://sabnzbd.org/wiki/configuration/4.3/
+
+[misc]
+# Host and Port
+host = 0.0.0.0
+port = 8080
+
+# URL Base (if using path-based proxy)
+url_base =
+
+# API Key (generated on first run)
+api_key = GENERATED_ON_FIRST_RUN
+nzb_key = GENERATED_ON_FIRST_RUN
+
+# Authentication
+# Use 'None' when behind Traefik with SSO
+username =
+password =
+
+# Directories
+download_dir = /incomplete
+complete_dir = /complete
+dirscan_dir =
+script_dir =
+
+# Performance
+cache_limit = 500M
+article_cache_max = 500M
+# Adjust based on available RAM
+
+# Download Settings
+bandwidth_max =
+bandwidth_perc = 100
+# 0 = unlimited bandwidth
+
+# Post-processing
+enable_all_par = 0
+# 0 = Download only needed par2 files
+# 1 = Download all par2 files
+
+par2_multicore = 1
+# Use multiple CPU cores for par2 repair
+
+nice =
+ionice =
+
+# Unpacking
+enable_unzip = 1
+enable_7zip = 1
+enable_filejoin = 1
+enable_tsjoin = 0
+enable_par_cleanup = 1
+safe_postproc = 1
+
+# Quota
+quota_size =
+quota_day =
+quota_resume = 0
+quota_period = m
+
+# Scheduling
+schedlines =
+# Format: hour minute day_of_week action
+
+# SSL/TLS for Usenet servers
+ssl_type = v23
+ssl_ciphers =
+
+# IPv6
+enable_ipv6 = 1
+ipv6_servers = 0
+
+# Logging
+log_level = 1
+# 0 = No logging
+# 1 = Errors/warnings (default)
+# 2 = Info
+max_log_size = 5242880
+log_backups = 5
+
+# Email notifications (optional)
+email_endjob = 0
+email_full = 0
+email_server =
+email_to =
+email_from =
+email_account =
+email_pwd =
+
+# RSS (optional)
+rss_rate = 60
+
+# External scripts (optional)
+pre_script =
+post_script =
+
+# Misc
+permissions =
+folder_rename = 1
+replace_spaces = 0
+replace_dots = 0
+auto_browser = 0
+propagation_delay = 0
+
+[servers]
+# Usenet servers configured via web UI
+# Or add manually here:
+# [[server_name]]
+# host = news.example.com
+# port = 563
+# ssl = 1
+# username = your_username
+# password = your_password
+# connections = 20
+# priority = 0
+# retention = 3000
+# enable = 1
+
+[categories]
+# Categories configured via web UI
+# Default categories: Movies, TV, Audio, Software
+
+[[*]]
+name = *
+order = 0
+pp = 3
+# 0 = Download
+# 1 = +Repair
+# 2 = +Unpack
+# 3 = +Delete (recommended)
+script = Default
+dir =
+newzbin =
+priority = 0

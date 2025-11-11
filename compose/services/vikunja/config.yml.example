@@ -1,0 +1,198 @@
+# Vikunja Configuration Example
+# Docs: https://vikunja.io/docs/config-options/
+# Copy to ./config.yml and mount in compose.yaml
+
+service:
+  # Service mode
+  interface: ':3456'
+
+  # Public URL
+  publicurl: https://tasks.fig.systems
+
+  # Frontend URL (if different from publicurl)
+  frontendurl: https://tasks.fig.systems
+
+  # Maximum file upload size (in bytes)
+  maxitemsperpage: 50
+
+  # Enable registration
+  enableregistration: true
+
+  # Enable user deletion
+  enableuserdeletion: true
+
+  # Enable task attachments
+  enabletaskattachments: true
+
+  # Enable task comments
+  enabletaskcomments: true
+
+  # Enable email reminders
+  enableemailreminders: true
+
+  # Enable caldav
+  enablecaldav: true
+
+  # Timezone
+  timezone: America/Los_Angeles
+
+database:
+  type: postgres
+  host: vikunja-db:5432
+  database: vikunja
+  user: vikunja
+  password: changeme_from_env
+  # Use environment variable: VIKUNJA_DATABASE_PASSWORD
+
+redis:
+  enabled: false
+  # Enable for better performance with multiple users
+  # host: 'localhost:6379'
+  # password: ''
+  # db: 0
+
+cache:
+  enabled: true
+  type: memory
+  # Options: memory, redis, keyvalue
+
+mailer:
+  enabled: false
+  # SMTP settings for email notifications
+  # host: smtp.example.com
+  # port: 587
+  # username: vikunja@example.com
+  # password: changeme
+  # fromemail: vikunja@example.com
+  # skiptlsverify: false
+  # forcessl: true
+
+log:
+  # Log level
+  level: INFO
+  # Options: CRITICAL, ERROR, WARNING, INFO, DEBUG
+
+  # Log format
+  standard: plain
+  # Options: plain, json
+
+  # Database logging
+  database: 'off'
+  # Options: off, error, warn, info, debug
+
+  # HTTP request logging
+  http: 'off'
+
+  # Events logging
+  events: 'off'
+
+  # Mail logging
+  mail: 'off'
+
+ratelimit:
+  enabled: false
+  # kind: user
+  # period: 60
+  # limit: 100
+
+files:
+  # Base path for file storage
+  basepath: /app/vikunja/files
+
+  # Maximum file size (in bytes, 20MB default)
+  maxsize: 20971520
+
+migration:
+  # Enable to import from other services
+  todoist:
+    enable: false
+    # clientid: ''
+    # clientsecret: ''
+    # redirecturl: ''
+
+  trello:
+    enable: false
+    # key: ''
+    # redirecturl: ''
+
+  microsofttodo:
+    enable: false
+    # clientid: ''
+    # clientsecret: ''
+    # redirecturl: ''
+
+cors:
+  # Enable CORS (usually not needed behind proxy)
+  enable: false
+  # origins:
+  #   - https://tasks.fig.systems
+  # maxage: 0
+
+# Authentication providers
+auth:
+  local:
+    enabled: true
+
+  # OpenID Connect (for SSO integration)
+  openid:
+    enabled: false
+    # redirecturl: https://tasks.fig.systems/auth/openid/
+    # providers:
+    #   - name: Authelia
+    #     authurl: https://auth.example.com
+    #     clientid: vikunja
+    #     clientsecret: changeme
+
+backgrounds:
+  enabled: true
+
+  # Unsplash integration (optional)
+  providers:
+    upload:
+      enabled: true
+
+# Webhooks
+webhooks:
+  enabled: true
+  # timeoutseconds: 30
+
+# Legal URLs (optional)
+legal:
+  imprinturl: ''
+  privacyurl: ''
+
+# Avatar provider
+avatar:
+  # Options: default, initials, gravatar, marble, upload
+  gravatarexpiration: 3600
+
+# Background jobs
+backgroundhandlers:
+  enabled: true
+
+# Metrics (Prometheus)
+metrics:
+  enabled: false
+  # username: ''
+  # password: ''
+
+# Key-value storage
+keyvalue:
+  type: memory
+  # Options: memory, redis
+
+# Default settings for new users
+defaultsettings:
+  avatar_provider: initials
+  avatar_file_id: 0
+  email_reminders_enabled: true
+  discoverable_by_name: false
+  discoverable_by_email: false
+  overduereminders_enabled: true
+  overduereminders_time: '09:00'
+  default_project_id: 0
+  week_start: 0
+  # 0 = Sunday, 1 = Monday
+  timezone: America/Los_Angeles
+  language: en
+  frontend_settings: {}

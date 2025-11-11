@@ -17,7 +17,7 @@ services:
       - homelab
     labels:
       traefik.enable: true
-      traefik.http.routers.sabnzbd.rule: Host(`sabnzbd.fig.systems`) || Host(`sabnzbd.edfig.dev`)
+      traefik.http.routers.sabnzbd.rule: Host(`sabnzbd.fig.systems`)
       traefik.http.routers.sabnzbd.entrypoints: websecure
       traefik.http.routers.sabnzbd.tls.certresolver: letsencrypt
       traefik.http.services.sabnzbd.loadbalancer.server.port: 8080

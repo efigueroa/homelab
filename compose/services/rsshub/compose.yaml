@@ -6,7 +6,36 @@ services:
     container_name: rsshub
     # Using chromium-bundled image for full puppeteer support
     image: diygod/rsshub:chromium-bundled
+    restart: unless-stopped
 
     env_file:
-
       - .env
+
+    volumes:
+      - ./data:/app/data
+
+    networks:
+      - homelab
+
+    labels:
+      # Traefik
+      traefik.enable: true
+      traefik.docker.network: homelab
+
+      # Web UI
+      traefik.http.routers.rsshub.rule: Host(`rsshub.fig.systems`)
+      traefik.http.routers.rsshub.entrypoints: websecure
+      traefik.http.routers.rsshub.tls.certresolver: letsencrypt
+      traefik.http.services.rsshub.loadbalancer.server.port: 1200
+
+      # Note: RSSHub is public by design, SSO disabled
+      # traefik.http.routers.rsshub.middlewares: tinyauth
+
+      # Homarr Discovery
+      homarr.name: RSSHub
+      homarr.group: Services
+      homarr.icon: mdi:rss-box
+
+networks:
+  homelab:
+    external: true

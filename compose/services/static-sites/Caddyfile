@@ -1,0 +1,57 @@
+# Caddyfile - Static Sites Configuration
+# Docs: https://caddyserver.com/docs/caddyfile
+
+# Global options
+{
+	# Listen on port 80 (Traefik handles SSL)
+	auto_https off
+	admin off
+}
+
+# Personal/Professional Site (edfig.dev)
+www.edfig.dev, edfig.dev {
+	root * /srv/edfig.dev
+	file_server
+	encode gzip
+
+	# Try files, then index, then 404
+	try_files {path} {path}/index.html index.html
+
+	# Cache static assets
+	@static {
+		path *.css *.js *.jpg *.jpeg *.png *.gif *.ico *.svg *.woff *.woff2 *.ttf *.eot
+	}
+	header @static Cache-Control "public, max-age=604800, immutable"
+}
+
+# Blog (blog.edfig.dev)
+blog.edfig.dev {
+	root * /srv/blog.edfig.dev
+	file_server
+	encode gzip
+
+	# Enable templates for dynamic content
+	templates
+
+	# Markdown files automatically render as HTML
+	try_files {path} {path}/index.html {path}.md {path}/index.md index.html
+
+	# Cache static assets
+	@static {
+		path *.css *.js *.jpg *.jpeg *.png *.gif *.ico *.svg *.woff *.woff2 *.ttf *.eot
+	}
+	header @static Cache-Control "public, max-age=604800, immutable"
+}
+
+# Experimental/Private (figgy.foo)
+figgy.foo, www.figgy.foo {
+	root * /srv/figgy.foo
+
+	# Enable directory browsing for experiments
+	file_server browse
+
+	encode gzip
+
+	# Templates enabled for dynamic pages
+	templates
+}

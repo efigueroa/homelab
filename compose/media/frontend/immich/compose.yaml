@@ -40,7 +40,7 @@ services:
     labels:
       traefik.enable: true
       traefik.docker.network: homelab
-      traefik.http.routers.immich.rule: Host(`photos.fig.systems`) || Host(`photos.edfig.dev`)
+      traefik.http.routers.immich.rule: Host(`photos.fig.systems`)
       traefik.http.routers.immich.entrypoints: websecure
       traefik.http.routers.immich.tls.certresolver: letsencrypt
       traefik.http.services.immich.loadbalancer.server.port: 2283

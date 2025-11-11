@@ -5,7 +5,36 @@ services:
   freshrss:
     container_name: freshrss
     image: lscr.io/linuxserver/freshrss:latest
+    restart: unless-stopped
 
     env_file:
-
       - .env
+
+    volumes:
+      - ./config:/config
+
+    networks:
+      - homelab
+
+    labels:
+      # Traefik
+      traefik.enable: true
+      traefik.docker.network: homelab
+
+      # Web UI
+      traefik.http.routers.freshrss.rule: Host(`rss.fig.systems`)
+      traefik.http.routers.freshrss.entrypoints: websecure
+      traefik.http.routers.freshrss.tls.certresolver: letsencrypt
+      traefik.http.services.freshrss.loadbalancer.server.port: 80
+
+      # SSO Protection
+      traefik.http.routers.freshrss.middlewares: tinyauth
+
+      # Homarr Discovery
+      homarr.name: FreshRSS
+      homarr.group: Services
+      homarr.icon: mdi:rss
+
+networks:
+  homelab:
+    external: true

@@ -20,7 +20,7 @@ services:
       - homelab
     labels:
       traefik.enable: true
-      traefik.http.routers.sonarr.rule: Host(`sonarr.fig.systems`) || Host(`sonarr.edfig.dev`)
+      traefik.http.routers.sonarr.rule: Host(`sonarr.fig.systems`)
       traefik.http.routers.sonarr.entrypoints: websecure
       traefik.http.routers.sonarr.tls.certresolver: letsencrypt
       traefik.http.services.sonarr.loadbalancer.server.port: 8989

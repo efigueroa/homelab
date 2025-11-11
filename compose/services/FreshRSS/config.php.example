@@ -1,0 +1,130 @@
+<?php
+/**
+ * FreshRSS Configuration Example
+ * Copy to ./config/www/freshrss/data/config.php
+ * Docs: https://freshrss.github.io/FreshRSS/en/admins/03_Troubleshooting.html
+ */
+
+return array(
+    // Environment (production or development)
+    'environment' => 'production',
+
+    // Base URL
+    'base_url' => 'https://rss.fig.systems',
+
+    // Database type (sqlite, mysql, pgsql)
+    'db' => array(
+        'type' => 'sqlite',
+        'host' => '',
+        'user' => '',
+        'password' => '',
+        'base' => 'freshrss',
+        // For MySQL/PostgreSQL:
+        // 'type' => 'mysql',
+        // 'host' => 'localhost:3306',
+        // 'user' => 'freshrss',
+        // 'password' => 'changeme',
+        // 'base' => 'freshrss',
+        'prefix' => 'freshrss_',
+        'pdo_options' => array(),
+    ),
+
+    // Salt for password hashing (auto-generated)
+    'salt' => 'GENERATED_ON_FIRST_RUN',
+
+    // Authentication method
+    // Options: form, http_auth, none
+    'auth_type' => 'form',
+
+    // Use Form auth when behind Traefik with SSO
+
+    // Allow self-registration
+    'allow_anonymous' => false,
+    'allow_anonymous_refresh' => false,
+
+    // Default language
+    'language' => 'en',
+
+    // Theme
+    'theme' => 'Origine',
+
+    // Timezone
+    'default_timezone' => 'America/Los_Angeles',
+
+    // Auto-load more articles when scrolling
+    'auto_load_more' => true,
+
+    // Articles per page
+    'posts_per_page' => 100,
+
+    // Old articles (keep for X months)
+    'old_entries' => 3,
+
+    // Caching
+    'cache' => array(
+        'enabled' => true,
+        'duration' => 3600, // seconds
+    ),
+
+    // Simplify HTML in articles
+    'simplify_html' => false,
+
+    // Disable update checking
+    'disable_update_check' => true,
+
+    // API settings
+    'api_enabled' => true,
+
+    // Google Reader API compatibility
+    'fever_api' => true,
+
+    // Shortcuts
+    'shortcuts' => array(
+        'mark_read' => 'r',
+        'mark_favorite' => 'f',
+        'go_website' => 'v',
+        'next_entry' => 'j',
+        'prev_entry' => 'k',
+        'first_entry' => 'shift+k',
+        'last_entry' => 'shift+j',
+        'collapse_entry' => 'c',
+        'load_more' => 'm',
+        'auto_share' => 's',
+        'focus_search' => '/',
+        'user_filter' => 'u',
+        'help' => 'h',
+        'close_dropdown' => 'esc',
+        'prev_feed' => 'shift+up',
+        'next_feed' => 'shift+down',
+    ),
+
+    // Extensions
+    'extensions_enabled' => array(),
+
+    // Proxy (if needed)
+    'proxy' => array(
+        'address' => '',
+        'port' => '',
+        'type' => '',
+        'username' => '',
+        'password' => '',
+    ),
+
+    // Limits
+    'limits' => array(
+        // Max feed checks per user per hour
+        'max_feeds_refresh_per_user_per_hour' => 10,
+
+        // Max articles per feed
+        'max_articles_per_feed' => 10000,
+
+        // Max registrations per IP per day
+        'max_registrations_per_ip_per_day' => 5,
+    ),
+
+    // Logging
+    'logging' => array(
+        'level' => 'warning',
+        // Options: emergency, alert, critical, error, warning, notice, info, debug
+    ),
+);

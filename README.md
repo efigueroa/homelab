@@ -2,6 +2,23 @@
 
 This repository contains Docker Compose configurations for self-hosted home services.
 
+## 💻 Hardware Specifications
+
+- **Host**: Proxmox VE 9 (Debian 13)
+  - CPU: AMD Ryzen 5 7600X (6 cores, 12 threads, up to 5.3 GHz)
+  - GPU: NVIDIA GeForce GTX 1070 (8GB VRAM)
+  - RAM: 32GB DDR5
+
+- **VM**: AlmaLinux 9.6 (RHEL 9 compatible)
+  - CPU: 8 vCPUs
+  - RAM: 24GB
+  - Storage: 500GB+ (expandable)
+  - GPU: GTX 1070 (PCIe passthrough)
+
+**Documentation:**
+- [Complete Architecture Guide](docs/architecture.md) - Integration, networking, logging, GPU setup
+- [AlmaLinux VM Setup](docs/setup/almalinux-vm.md) - Full installation and configuration guide
+
 ## 🏗️ Infrastructure
 
 ### Core Services (Port 80/443)
@@ -43,7 +60,9 @@ compose/
 └── services/       # Utility services
     ├── homarr/         # Dashboard (home.fig.systems)
     ├── backrest/       # Backup manager (backup.fig.systems)
-    ├── linkwarden/     # Bookmark manager (links.fig.systems)
+    ├── static-sites/   # Static websites (Caddy)
+    ├── karakeep/       # Bookmark manager with AI (links.fig.systems)
+    ├── ollama/         # Local LLM server (ollama.fig.systems)
     ├── vikunja/        # Task management (tasks.fig.systems)
     ├── lubelogger/     # Vehicle tracker (garage.fig.systems)
     ├── calibre-web/    # Ebook library (books.fig.systems)
@@ -56,9 +75,21 @@ compose/
 
 ## 🌐 Domains
 
-All services are accessible via:
-- Primary: `*.fig.systems`
-- Secondary: `*.edfig.dev`
+Three domains are used with different purposes:
+
+### fig.systems (Homelab Services)
+Primary domain for all self-hosted homelab services:
+- `*.fig.systems` - All services listed below
+
+### edfig.dev (Professional/Public)
+Professional and public-facing sites:
+- `edfig.dev` / `www.edfig.dev` - Personal website/portfolio
+- `blog.edfig.dev` - Technical blog
+
+### figgy.foo (Experimental/Private)
+Testing and experimental services:
+- `figgy.foo` - Experimental lab (SSO protected)
+- `*.figgy.foo` - Test instances of services
 
 ### Service URLs
 
@@ -67,6 +98,10 @@ All services are accessible via:
 | Traefik Dashboard | traefik.fig.systems | ✅ |
 | LLDAP | lldap.fig.systems | ✅ |
 | Tinyauth | auth.fig.systems | ❌ |
+| **Static Sites** | | |
+| Personal Site | edfig.dev | ❌ |
+| Blog | blog.edfig.dev | ❌ |
+| Experimental Lab | figgy.foo | ✅ |
 | **Monitoring** | | |
 | Grafana (Logs) | logs.fig.systems | ❌* |
 | Loki (API) | loki.fig.systems | ✅ |
@@ -82,7 +117,8 @@ All services are accessible via:
 | SABnzbd | sabnzbd.fig.systems | ✅ |
 | qBittorrent | qbt.fig.systems | ✅ |
 | Profilarr | profilarr.fig.systems | ✅ |
-| Linkwarden | links.fig.systems | ✅ |
+| Karakeep | links.fig.systems | ✅ |
+| Ollama (API) | ollama.fig.systems | ✅ |
 | Vikunja | tasks.fig.systems | ✅ |
 | LubeLogger | garage.fig.systems | ✅ |
 | Calibre-web | books.fig.systems | ✅ |
@@ -164,7 +200,9 @@ cd compose/media/automation/recyclarr && docker compose up -d
 cd compose/media/automation/profilarr && docker compose up -d
 
 # Utility services
-cd compose/services/linkwarden && docker compose up -d
+cd compose/services/static-sites && docker compose up -d  # Static websites (edfig.dev, blog, figgy.foo)
+cd compose/services/karakeep && docker compose up -d
+cd compose/services/ollama && docker compose up -d
 cd compose/services/vikunja && docker compose up -d
 cd compose/services/homarr && docker compose up -d
 cd compose/services/backrest && docker compose up -d
@@ -196,8 +234,20 @@ Each service has its own `.env` file where applicable. Key files to review:
 - `core/lldap/.env` - LDAP configuration and admin credentials
 - `core/tinyauth/.env` - LDAP connection and session settings
 - `media/frontend/immich/.env` - Photo management configuration
-- `services/linkwarden/.env` - Bookmark manager settings
+- `services/karakeep/.env` - AI-powered bookmark manager
+- `services/ollama/.env` - Local LLM configuration
 - `services/microbin/.env` - Pastebin configuration
+
+**Example Configuration Files:**
+Several services include `.example` config files for reference:
+- `media/automation/sonarr/config.xml.example`
+- `media/automation/radarr/config.xml.example`
+- `media/automation/sabnzbd/sabnzbd.ini.example`
+- `media/automation/qbittorrent/qBittorrent.conf.example`
+- `services/vikunja/config.yml.example`
+- `services/FreshRSS/config.php.example`
+
+Copy these to the appropriate location (usually `./config/`) and customize as needed.
 
 ## 🔧 Maintenance
 
@@ -237,6 +287,83 @@ Important data locations:
 1. Verify tinyauth is running: `docker ps | grep tinyauth`
 2. Check LLDAP connection in tinyauth logs
 3. Verify LDAP bind credentials match in both services
+
+### GPU not detected
+1. Check GPU passthrough: `lspci | grep -i nvidia`
+2. Verify drivers: `nvidia-smi`
+3. Test in container: `docker exec ollama nvidia-smi`
+4. See [AlmaLinux VM Setup](docs/setup/almalinux-vm.md) for GPU configuration
+
+## 📊 Monitoring & Logging
+
+### Centralized Logging (Loki + Promtail + Grafana)
+
+All container logs are automatically collected and stored in Loki:
+
+**Access Grafana**: https://logs.fig.systems
+
+**Query examples:**
+```logql
+# View logs for specific service
+{container="sonarr"}
+
+# Filter by log level
+{container="radarr"} |= "ERROR"
+
+# Multiple services
+{container=~"sonarr|radarr"}
+
+# Search with JSON parsing
+{container="karakeep"} |= "ollama" | json
+```
+
+**Retention**: 30 days (configurable in `compose/monitoring/logging/loki-config.yaml`)
+
+### Uptime Monitoring (Uptime Kuma)
+
+Monitor service availability and performance:
+
+**Access Uptime Kuma**: https://status.fig.systems
+
+**Features:**
+- HTTP(s) monitoring for all web services
+- Docker container health checks
+- SSL certificate expiration alerts
+- Public/private status pages
+- 90+ notification integrations (Discord, Slack, Email, etc.)
+
+### Service Integration
+
+**How services integrate:**
+
+```
+Traefik (Reverse Proxy)
+  ├─→ All services (SSL + routing)
+  └─→ Let's Encrypt (certificates)
+
+Tinyauth (SSO)
+  ├─→ LLDAP (user authentication)
+  └─→ Protected services (authorization)
+
+Promtail (Log Collection)
+  ├─→ Docker socket (all containers)
+  └─→ Loki (log storage)
+
+Loki (Log Storage)
+  └─→ Grafana (visualization)
+
+Karakeep (Bookmarks)
+  ├─→ Ollama (AI tagging)
+  ├─→ Meilisearch (search)
+  └─→ Chrome (web archiving)
+
+Sonarr/Radarr (Media Automation)
+  ├─→ SABnzbd/qBittorrent (downloads)
+  ├─→ Jellyfin (media library)
+  └─→ Recyclarr/Profilarr (quality management)
+```
+
+See [Architecture Guide](docs/architecture.md) for complete integration details.
 
 ## 📄 License
 

@@ -1,0 +1,200 @@
+# qBittorrent Configuration Example
+# This file will be auto-generated on first run
+# Copy to ./config/qBittorrent/qBittorrent.conf and modify as needed
+# Docs: https://github.com/qbittorrent/qBittorrent/wiki
+
+[Application]
+# File Logger
+FileLogger\Enabled=true
+FileLogger\Path=/config/qBittorrent/logs
+FileLogger\Backup=true
+FileLogger\DeleteOld=true
+FileLogger\MaxSize=6MiB
+FileLogger\Age=1
+FileLogger\AgeType=1
+
+# Memory
+MemoryWorkingSetLimit=512
+
+[BitTorrent]
+# Session Settings
+Session\DefaultSavePath=/downloads
+Session\TempPath=/incomplete
+Session\TempPathEnabled=true
+
+# Port for incoming connections
+Session\Port=6881
+
+# Use UPnP/NAT-PMP
+Session\UseUPnP=false
+
+# Encryption mode
+Session\Encryption=1
+# 0 = Prefer encryption
+# 1 = Require encryption
+# 2 = Disable encryption
+
+# Anonymous mode
+Session\AnonymousMode=false
+
+# Max connections
+Session\MaxConnections=500
+Session\MaxConnectionsPerTorrent=100
+Session\MaxUploads=20
+Session\MaxUploadsPerTorrent=4
+
+# DHT
+Session\DHTEnabled=true
+Session\PeXEnabled=true
+Session\LSDEnabled=true
+
+# Queuing
+Session\QueueingSystemEnabled=true
+Session\MaxActiveDownloads=5
+Session\MaxActiveTorrents=10
+Session\MaxActiveUploads=5
+
+# Seeding limits
+Session\GlobalMaxSeedingMinutes=-1
+Session\MaxRatioAction=0
+# 0 = Pause torrent
+# 1 = Remove torrent
+
+Session\MaxRatio=2.0
+
+# Torrent tracking
+Session\AddTrackersEnabled=true
+Session\AdditionalTrackers=
+
+# Categories
+Session\SubcategoriesEnabled=true
+
+# Performance
+Session\BTProtocol=Both
+# TCP, UTP, Both
+
+Session\uTPRateLimited=true
+Session\DiskCacheSize=64
+Session\DiskCacheTTL=60
+
+# Speed limits (in KiB/s, 0 = unlimited)
+Session\GlobalDLSpeedLimit=0
+Session\GlobalUPSpeedLimit=0
+
+# Alternative speed limits (scheduled)
+Session\AltGlobalDLSpeedLimit=512
+Session\AltGlobalUPSpeedLimit=256
+Session\BandwidthSchedulerEnabled=false
+
+# IP Filtering
+Session\IPFilteringEnabled=false
+Session\IPFilterFile=
+
+# Proxy
+Session\ProxyType=None
+# Options: None, HTTP, SOCKS5, SOCKS4
+
+Session\ProxyIP=
+Session\ProxyPort=8080
+Session\ProxyPeerConnections=false
+Session\ProxyTorrentOnly=false
+
+[LegalNotice]
+Accepted=true
+
+[Preferences]
+# Downloads
+Downloads\SavePath=/downloads
+Downloads\TempPath=/incomplete
+Downloads\TempPathEnabled=true
+Downloads\ScanDirsV2=
+Downloads\FinishedTorrentExportDir=
+Downloads\PreAllocation=false
+Downloads\UseIncompleteExtension=true
+
+# Connection
+Connection\PortRangeMin=6881
+Connection\PortRangeMax=6881
+Connection\UPnP=false
+Connection\GlobalDLLimitAlt=512
+Connection\GlobalUPLimitAlt=256
+
+# Speed
+Bittorrent\MaxConnecs=500
+Bittorrent\MaxConnecsPerTorrent=100
+Bittorrent\MaxUploads=20
+Bittorrent\MaxUploadsPerTorrent=4
+
+# Queue
+Queueing\QueueingEnabled=true
+Queueing\MaxActiveDownloads=5
+Queueing\MaxActiveTorrents=10
+Queueing\MaxActiveUploads=5
+Queueing\IgnoreSlowTorrents=false
+Queueing\SlowTorrentsDownloadRate=2
+Queueing\SlowTorrentsUploadRate=2
+
+# Scheduler
+Scheduler\Enabled=false
+Scheduler\days=EveryDay
+Scheduler\start_time=@Variant(\0\0\0\xf\x4J\xa2\0)
+Scheduler\end_time=@Variant(\0\0\0\xf\x1\x90\x1\0)
+
+# RSS
+RSS\AutoDownloader\DownloadRepacks=true
+RSS\AutoDownloader\SmartEpisodeFilter=s(\\d+)e(\\d+), (\\d+)x(\\d+), "(\\d{4}[.\\-]\\d{1,2}[.\\-]\\d{1,2})", "(\\d{1,2}[.\\-]\\d{1,2}[.\\-]\\d{4})"
+
+# Web UI
+WebUI\Enabled=true
+WebUI\LocalHostAuth=false
+WebUI\Port=8080
+WebUI\Address=*
+WebUI\ServerDomains=*
+WebUI\UseUPnP=false
+
+# Web UI Authentication
+WebUI\Username=admin
+WebUI\Password_PBKDF2=GENERATED_ON_FIRST_RUN
+
+# Security
+WebUI\CSRFProtection=true
+WebUI\SecureCookie=true
+WebUI\ClickjackingProtection=true
+WebUI\HostHeaderValidation=true
+
+# Custom HTTP Headers
+WebUI\CustomHTTPHeaders=
+WebUI\CustomHTTPHeadersEnabled=false
+
+# Reverse Proxy
+WebUI\ReverseProxySupportEnabled=true
+WebUI\TrustedReverseProxiesList=
+
+# Alternative WebUI
+WebUI\AlternativeUIEnabled=false
+WebUI\RootFolder=
+
+# Locale
+General\Locale=en
+WebUI\UseCustomHTTPHeaders=false
+
+# Advanced
+Advanced\RecheckOnCompletion=false
+Advanced\AnonymousMode=false
+Advanced\SuperSeeding=false
+Advanced\IgnoreLimitsLAN=true
+Advanced\IncludeOverhead=false
+Advanced\AnnounceToAllTrackers=false
+Advanced\AnnounceToAllTiers=true
+
+# Tracker
+Advanced\trackerPort=9000
+
+# Embedded tracker
+Advanced\trackerEnabled=false
+
+# Logging
+AdvancedSettings\LogFileEnabled=true
+
+[RSS]
+AutoDownloader\Enabled=false

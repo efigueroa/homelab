@@ -22,7 +22,7 @@ services:
       traefik.docker.network: homelab
 
       # Web UI
-      traefik.http.routers.uptime-kuma.rule: Host(`status.fig.systems`) || Host(`status.edfig.dev`)
+      traefik.http.routers.uptime-kuma.rule: Host(`status.fig.systems`)
       traefik.http.routers.uptime-kuma.entrypoints: websecure
       traefik.http.routers.uptime-kuma.tls.certresolver: letsencrypt
       traefik.http.services.uptime-kuma.loadbalancer.server.port: 3001

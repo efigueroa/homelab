@@ -1,0 +1,63 @@
+# Caddy - Static Sites Server
+# Docs: https://caddyserver.com/docs/
+
+services:
+  caddy:
+    container_name: caddy-static
+    image: caddy:2-alpine
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./sites:/srv:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+    networks:
+      - homelab
+
+    labels:
+      # Traefik
+      traefik.enable: true
+      traefik.docker.network: homelab
+
+      # edfig.dev (personal/professional site)
+      traefik.http.routers.edfig-www.rule: Host(`www.edfig.dev`) || Host(`edfig.dev`)
+      traefik.http.routers.edfig-www.entrypoints: websecure
+      traefik.http.routers.edfig-www.tls.certresolver: letsencrypt
+      traefik.http.routers.edfig-www.service: caddy-static
+      # No SSO - public personal site
+
+      # blog.edfig.dev (blog)
+      traefik.http.routers.edfig-blog.rule: Host(`blog.edfig.dev`)
+      traefik.http.routers.edfig-blog.entrypoints: websecure
+      traefik.http.routers.edfig-blog.tls.certresolver: letsencrypt
+      traefik.http.routers.edfig-blog.service: caddy-static
+      # No SSO - public blog
+
+      # figgy.foo (experimental/private)
+      traefik.http.routers.figgy-main.rule: Host(`figgy.foo`) || Host(`www.figgy.foo`)
+      traefik.http.routers.figgy-main.entrypoints: websecure
+      traefik.http.routers.figgy-main.tls.certresolver: letsencrypt
+      traefik.http.routers.figgy-main.service: caddy-static
+      traefik.http.routers.figgy-main.middlewares: tinyauth
+      # SSO protected - experimental/private content
+
+      # Service definition (single backend for all routes)
+      traefik.http.services.caddy-static.loadbalancer.server.port: 80
+
+      # Homarr Discovery
+      homarr.name: Static Sites (Caddy)
+      homarr.group: Services
+      homarr.icon: mdi:web
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  homelab:
+    external: true
