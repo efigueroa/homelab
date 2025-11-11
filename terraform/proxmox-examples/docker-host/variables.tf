@@ -123,3 +123,53 @@ variable "github_username" {
   type        = string
   default     = "efigueroa"
 }
+
+# GPU Passthrough Configuration
+variable "enable_gpu_passthrough" {
+  description = "Enable GPU passthrough (NVIDIA GTX 1070)"
+  type        = bool
+  default     = false
+}
+
+variable "gpu_pci_id" {
+  description = "GPU PCI ID (e.g., 0000:01:00)"
+  type        = string
+  default     = "0000:01:00"
+}
+
+# Media Directory Mount Configuration
+variable "mount_media_directories" {
+  description = "Mount media directories from Proxmox host via NFS"
+  type        = bool
+  default     = true
+}
+
+variable "proxmox_host_ip" {
+  description = "Proxmox host IP address for NFS mounts"
+  type        = string
+  default     = "192.168.1.1"
+}
+
+variable "media_source_path" {
+  description = "Source path on Proxmox host for media directories"
+  type        = string
+  default     = "/data/media"
+}
+
+variable "media_mount_path" {
+  description = "Mount path in VM for media directories"
+  type        = string
+  default     = "/media"
+}
+
+# Operating System
+variable "vm_os_type" {
+  description = "VM OS type (ubuntu, almalinux, debian)"
+  type        = string
+  default     = "almalinux"
+
+  validation {
+    condition     = contains(["ubuntu", "almalinux", "debian"], var.vm_os_type)
+    error_message = "OS type must be ubuntu, almalinux, or debian"
+  }
+}
