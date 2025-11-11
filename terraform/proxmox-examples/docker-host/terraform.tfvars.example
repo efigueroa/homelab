@@ -8,6 +8,12 @@ pm_tls_insecure     = true
 proxmox_node = "pve"
 template_vm_id = 9000
 storage = "local-lvm"
+
+# Storage for cloud-init snippets (must support 'snippets' content type)
+# Common options: "local" (directory storage), or create a directory storage
+# See README.md for setup instructions if you get datastore errors
+snippets_storage = "local"
+
 network_bridge = "vmbr0"
 
 # VM Configuration

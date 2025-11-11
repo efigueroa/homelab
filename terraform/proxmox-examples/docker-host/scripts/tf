@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+#
+# tf - Wrapper for OpenTofu/Terraform with automatic SOPS encryption/decryption
+#
+# Usage:
+#   ./scripts/tf init
+#   ./scripts/tf plan
+#   ./scripts/tf apply
+#   ./scripts/tf destroy
+#
+# This script automatically:
+#   1. Decrypts state before running tofu commands
+#   2. Runs your tofu command
+#   3. Encrypts state after running tofu commands
+#
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TF_DIR="$(dirname "$SCRIPT_DIR")"
+
+cd "$TF_DIR"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+error() {
+    echo -e "${RED}ERROR: $1${NC}" >&2
+    exit 1
+}
+
+success() {
+    echo -e "${GREEN}✓ $1${NC}"
+}
+
+info() {
+    echo -e "${BLUE}ℹ $1${NC}"
+}
+
+# Check if tofu or terraform is installed
+if command -v tofu &> /dev/null; then
+    TF_CMD="tofu"
+elif command -v terraform &> /dev/null; then
+    TF_CMD="terraform"
+else
+    error "Neither tofu nor terraform is installed"
+fi
+
+# Decrypt state if encrypted files exist
+if [[ -f terraform.tfstate.enc || -f terraform.tfvars.enc ]]; then
+    info "Decrypting state files..."
+    "$SCRIPT_DIR/tf-decrypt"
+    echo
+fi
+
+# Run the terraform/tofu command
+echo -e "${BLUE}Running: $TF_CMD $*${NC}"
+echo
+$TF_CMD "$@"
+TF_EXIT_CODE=$?
+
+# If the command succeeded and modified state, encrypt it
+if [[ $TF_EXIT_CODE -eq 0 ]]; then
+    # Commands that modify state
+    if [[ "$1" =~ ^(apply|destroy|import|refresh|state)$ ]]; then
+        echo
+        info "Encrypting state files..."
+        "$SCRIPT_DIR/tf-encrypt"
+    fi
+fi
+
+exit $TF_EXIT_CODE

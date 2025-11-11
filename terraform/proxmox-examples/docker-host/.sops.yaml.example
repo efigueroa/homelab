@@ -1,0 +1,34 @@
+# SOPS Configuration for Terraform State Encryption
+#
+# Setup Instructions:
+# 1. Install age and sops:
+#    - Debian/Ubuntu: sudo apt install age
+#    - macOS: brew install age sops
+#    - Manual: https://github.com/FiloSottile/age/releases
+#               https://github.com/getsops/sops/releases
+#
+# 2. Generate an age key:
+#    mkdir -p ~/.sops
+#    age-keygen -o ~/.sops/homelab-terraform.txt
+#
+# 3. Copy this file:
+#    cp .sops.yaml.example .sops.yaml
+#
+# 4. Replace YOUR_AGE_PUBLIC_KEY_HERE with the public key from step 2
+#    (the line starting with "age1...")
+#
+# 5. DO NOT commit .sops.yaml to git (it's in .gitignore)
+#    Keep your private key (~/.sops/homelab-terraform.txt) secure!
+
+creation_rules:
+  # Encrypt all .tfstate files with age
+  - path_regex: \.tfstate$
+    age: YOUR_AGE_PUBLIC_KEY_HERE
+
+  # Encrypt any .secret files
+  - path_regex: \.secret$
+    age: YOUR_AGE_PUBLIC_KEY_HERE
+
+  # Encrypt terraform.tfvars (contains API tokens)
+  - path_regex: terraform\.tfvars$
+    age: YOUR_AGE_PUBLIC_KEY_HERE

@@ -114,7 +114,7 @@ resource "proxmox_virtual_environment_vm" "docker_host" {
 # Cloud-init user data for Docker installation
 resource "proxmox_virtual_environment_file" "cloud_init_user_data" {
   content_type = "snippets"
-  datastore_id = "local"
+  datastore_id = var.snippets_storage
   node_name    = var.proxmox_node
 
   source_raw {

@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+#
+# tf-decrypt - Decrypt Terraform state and tfvars files with SOPS
+#
+# Usage: ./scripts/tf-decrypt
+#
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TF_DIR="$(dirname "$SCRIPT_DIR")"
+
+cd "$TF_DIR"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+error() {
+    echo -e "${RED}ERROR: $1${NC}" >&2
+    exit 1
+}
+
+success() {
+    echo -e "${GREEN}✓ $1${NC}"
+}
+
+warn() {
+    echo -e "${YELLOW}⚠ $1${NC}"
+}
+
+# Check if SOPS is installed
+if ! command -v sops &> /dev/null; then
+    error "sops is not installed. Install it from: https://github.com/getsops/sops/releases"
+fi
+
+# Check if .sops.yaml exists
+if [[ ! -f .sops.yaml ]]; then
+    error ".sops.yaml not found. Copy .sops.yaml.example and configure your age key."
+fi
+
+# Check if SOPS_AGE_KEY_FILE is set or exists in default location
+if [[ -z "${SOPS_AGE_KEY_FILE:-}" ]]; then
+    if [[ -f ~/.sops/homelab-terraform.txt ]]; then
+        export SOPS_AGE_KEY_FILE=~/.sops/homelab-terraform.txt
+    else
+        warn "SOPS_AGE_KEY_FILE not set. Trying default age identities..."
+    fi
+fi
+
+echo "🔓 Decrypting Terraform files..."
+echo
+
+# Decrypt terraform.tfstate.enc if it exists
+if [[ -f terraform.tfstate.enc ]]; then
+    echo "Decrypting terraform.tfstate.enc..."
+    sops -d terraform.tfstate.enc > terraform.tfstate
+    success "terraform.tfstate.enc → terraform.tfstate"
+else
+    warn "terraform.tfstate.enc not found (this is normal for first-time setup)"
+fi
+
+# Decrypt terraform.tfvars.enc if it exists
+if [[ -f terraform.tfvars.enc ]]; then
+    echo "Decrypting terraform.tfvars.enc..."
+    sops -d terraform.tfvars.enc > terraform.tfvars
+    success "terraform.tfvars.enc → terraform.tfvars"
+else
+    warn "terraform.tfvars.enc not found"
+fi
+
+# Decrypt backup state files if they exist
+for backup_enc in terraform.tfstate.backup.enc terraform.tfstate.*.backup.enc; do
+    if [[ -f "$backup_enc" ]]; then
+        backup="${backup_enc%.enc}"
+        echo "Decrypting $backup_enc..."
+        sops -d "$backup_enc" > "$backup"
+        success "$backup_enc → $backup"
+    fi
+done
+
+echo
+success "All Terraform files decrypted successfully!"
+echo
+warn "Remember to encrypt files after making changes: ./scripts/tf-encrypt"

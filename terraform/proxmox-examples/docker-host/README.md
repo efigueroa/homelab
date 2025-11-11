@@ -474,6 +474,80 @@ Type `yes` to confirm deletion.
 
 ## Troubleshooting
 
+### Datastore Does Not Support Snippets
+
+Error: `the datastore "local" does not support content type "snippets"`
+
+**Cause:** The storage you specified doesn't have snippets enabled
+
+**Solution 1 - Enable snippets on existing storage:**
+```bash
+# On Proxmox host, check current content types
+pvesm status
+
+# Enable snippets on local storage
+pvesm set local --content backup,iso,vztmpl,snippets
+
+# Verify
+pvesm status | grep local
+```
+
+**Solution 2 - Create dedicated directory storage:**
+```bash
+# On Proxmox host
+# Create directory for snippets
+mkdir -p /var/lib/vz/snippets
+
+# Add directory storage via Proxmox UI:
+# Datacenter → Storage → Add → Directory
+# ID: local-snippets
+# Directory: /var/lib/vz/snippets
+# Content: Snippets
+
+# Or via CLI:
+pvesm add dir local-snippets --path /var/lib/vz/snippets --content snippets
+
+# Update terraform.tfvars:
+# snippets_storage = "local-snippets"
+```
+
+### SSH Authentication Failed
+
+Error: `failed to open SSH client: unable to authenticate`
+
+**Cause:** The Proxmox provider needs SSH access to upload cloud-init files
+
+**Solution 1 - Add SSH key to Proxmox (Recommended):**
+```bash
+# On your workstation, generate SSH key if you don't have one
+ssh-keygen -t ed25519 -C "terraform@homelab"
+
+# Copy to Proxmox host
+ssh-copy-id root@proxmox.local
+
+# Add key to ssh-agent
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+
+# Verify
+ssh-add -L
+ssh root@proxmox.local "echo 'SSH works!'"
+```
+
+**Solution 2 - Use API token only (workaround):**
+
+If SSH is problematic, you can create the cloud-init snippet manually:
+
+```bash
+# On Proxmox host, create the snippet
+nano /var/lib/vz/snippets/cloud-init-docker-host.yaml
+# Paste the cloud-init content from main.tf
+
+# Then remove the proxmox_virtual_environment_file resource from main.tf
+# and reference the file directly in the VM resource:
+# user_data_file_id = "local:snippets/cloud-init-docker-host.yaml"
+```
+
 ### Template Not Found
 
 Error: `template with ID 9000 not found`
