@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Telegram Music Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0f0f0f;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #1db954;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #b3b3b3;
+            font-size: 1.1rem;
+        }
+
+        .nav {
+            margin-bottom: 30px;
+        }
+
+        .nav a {
+            color: #1db954;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+
+        .nav a:hover {
+            text-decoration: underline;
+        }
+
+        .card {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            color: #1db954;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+
+        .config-item {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .config-item:last-child {
+            border-bottom: none;
+        }
+
+        .config-label {
+            display: block;
+            color: #e0e0e0;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .config-value {
+            font-family: 'Courier New', monospace;
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            padding: 8px;
+            background: #0f0f0f;
+            border-radius: 4px;
+        }
+
+        .config-input {
+            width: 100%;
+            padding: 12px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 1rem;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 12px;
+        }
+
+        .config-input:focus {
+            outline: none;
+            border-color: #1db954;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #1db954;
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #1ed760;
+        }
+
+        .btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .btn-small {
+            padding: 6px 14px;
+            font-size: 0.85rem;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #1db954;
+            color: #000;
+        }
+
+        .alert-error {
+            background: #ff0000;
+            color: #fff;
+        }
+
+        .alert-info {
+            background: #0066cc;
+            color: #fff;
+        }
+
+        .readonly-note {
+            color: #888;
+            font-size: 0.85rem;
+            font-style: italic;
+            margin-top: 4px;
+        }
+
+        .security-notice {
+            background: #2a2a00;
+            border-left: 4px solid #ffa500;
+            padding: 16px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .security-notice h3 {
+            color: #ffa500;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .security-notice p {
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        .loading {
+            text-align: center;
+            color: #1db954;
+            padding: 40px;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚙️ Settings</h1>
+            <p class="subtitle">Manage API keys and configuration</p>
+        </header>
+
+        <div class="nav">
+            <a href="/">← Back to Dashboard</a>
+        </div>
+
+        <div class="security-notice">
+            <h3>🔒 Security Notice</h3>
+            <p>
+                For security, API keys are never displayed in full. Only masked versions are shown.
+                When you update a key, it's saved securely and applied immediately without requiring a restart.
+            </p>
+        </div>
+
+        <div id="alert-container"></div>
+
+        <div class="card">
+            <h2>Read-Only Configuration</h2>
+            <p style="color: #888; margin-bottom: 20px;">These settings cannot be changed via the web interface.</p>
+
+            <div class="config-item">
+                <span class="config-label">Telegram API ID</span>
+                <div class="config-value" id="TELEGRAM_API_ID">Loading...</div>
+                <div class="readonly-note">Set via environment variable only</div>
+            </div>
+
+            <div class="config-item">
+                <span class="config-label">Telegram API Hash</span>
+                <div class="config-value" id="TELEGRAM_API_HASH">Loading...</div>
+                <div class="readonly-note">Set via environment variable only</div>
+            </div>
+
+            <div class="config-item">
+                <span class="config-label">Telegram Phone</span>
+                <div class="config-value" id="TELEGRAM_PHONE">Loading...</div>
+                <div class="readonly-note">Set via environment variable only</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Updatable Configuration</h2>
+            <p style="color: #888; margin-bottom: 20px;">These settings can be updated below and will apply immediately.</p>
+
+            <div class="config-item">
+                <span class="config-label">Spotify Client ID</span>
+                <div class="config-value" id="display_SPOTIFY_CLIENT_ID">Loading...</div>
+                <input type="text" class="config-input" id="input_SPOTIFY_CLIENT_ID" placeholder="Enter new Spotify Client ID">
+                <button class="btn btn-small" onclick="updateConfig('SPOTIFY_CLIENT_ID')">Update</button>
+            </div>
+
+            <div class="config-item">
+                <span class="config-label">Spotify Client Secret</span>
+                <div class="config-value" id="display_SPOTIFY_CLIENT_SECRET">Loading...</div>
+                <input type="text" class="config-input" id="input_SPOTIFY_CLIENT_SECRET" placeholder="Enter new Spotify Client Secret">
+                <button class="btn btn-small" onclick="updateConfig('SPOTIFY_CLIENT_SECRET')">Update</button>
+            </div>
+
+            <div class="config-item">
+                <span class="config-label">YouTube API Key</span>
+                <div class="config-value" id="display_YOUTUBE_API_KEY">Loading...</div>
+                <input type="text" class="config-input" id="input_YOUTUBE_API_KEY" placeholder="Enter new YouTube API Key">
+                <button class="btn btn-small" onclick="updateConfig('YOUTUBE_API_KEY')">Update</button>
+            </div>
+
+            <div class="config-item">
+                <span class="config-label">Lidarr URL</span>
+                <div class="config-value" id="display_LIDARR_URL">Loading...</div>
+                <input type="text" class="config-input" id="input_LIDARR_URL" placeholder="Enter new Lidarr URL">
+                <button class="btn btn-small" onclick="updateConfig('LIDARR_URL')">Update</button>
+            </div>
+
+            <div class="config-item">
+                <span class="config-label">Lidarr API Key</span>
+                <div class="config-value" id="display_LIDARR_API_KEY">Loading...</div>
+                <input type="text" class="config-input" id="input_LIDARR_API_KEY" placeholder="Enter new Lidarr API Key">
+                <button class="btn btn-small" onclick="updateConfig('LIDARR_API_KEY')">Update</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load settings on page load
+        async function loadSettings() {
+            try {
+                const response = await fetch('/api/settings');
+                const data = await response.json();
+
+                // Update read-only fields
+                document.getElementById('TELEGRAM_API_ID').textContent = data.config.TELEGRAM_API_ID || 'Not set';
+                document.getElementById('TELEGRAM_API_HASH').textContent = data.config.TELEGRAM_API_HASH || 'Not set';
+                document.getElementById('TELEGRAM_PHONE').textContent = data.config.TELEGRAM_PHONE || 'Not set';
+
+                // Update updatable fields (display only, masked)
+                document.getElementById('display_SPOTIFY_CLIENT_ID').textContent = data.config.SPOTIFY_CLIENT_ID || 'Not set';
+                document.getElementById('display_SPOTIFY_CLIENT_SECRET').textContent = data.config.SPOTIFY_CLIENT_SECRET || 'Not set';
+                document.getElementById('display_YOUTUBE_API_KEY').textContent = data.config.YOUTUBE_API_KEY || 'Not set';
+                document.getElementById('display_LIDARR_URL').textContent = data.config.LIDARR_URL || 'Not set';
+                document.getElementById('display_LIDARR_API_KEY').textContent = data.config.LIDARR_API_KEY || 'Not set';
+
+            } catch (error) {
+                showAlert('Failed to load settings: ' + error.message, 'error');
+            }
+        }
+
+        // Update a configuration value
+        async function updateConfig(key) {
+            const input = document.getElementById('input_' + key);
+            const value = input.value.trim();
+
+            if (!value) {
+                showAlert('Please enter a value', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ key, value }),
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Failed to update configuration');
+                }
+
+                const data = await response.json();
+
+                // Update the display with the masked value
+                document.getElementById('display_' + key).textContent = data.masked;
+
+                // Clear the input
+                input.value = '';
+
+                // Show success message
+                showAlert(`${key} updated successfully!`, 'success');
+
+            } catch (error) {
+                showAlert('Failed to update: ' + error.message, 'error');
+            }
+        }
+
+        // Show an alert message
+        function showAlert(message, type) {
+            const container = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-' + type;
+            alert.textContent = message;
+            alert.style.display = 'block';
+
+            container.innerHTML = '';
+            container.appendChild(alert);
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load settings on page load
+        loadSettings();
+    </script>
+</body>
+</html>

@@ -39,6 +39,16 @@ func main() {
 	defer db.Close()
 	log.Println("Database initialized successfully")
 
+	// Load configuration overrides from database
+	// This allows runtime updates via the web UI to persist
+	overrides, err := db.GetAllConfigOverrides()
+	if err != nil {
+		log.Printf("Warning: Failed to load config overrides: %v", err)
+	} else if len(overrides) > 0 {
+		cfg.ApplyOverrides(overrides)
+		log.Printf("Applied %d configuration overrides from database", len(overrides))
+	}
+
 	// Initialize API clients
 	spotifyClient := platforms.NewSpotifyClient(cfg.SpotifyClientID, cfg.SpotifyClientSecret)
 	log.Println("Spotify client initialized")
@@ -52,8 +62,8 @@ func main() {
 	lidarrClient := lidarr.NewClient(cfg.LidarrURL, cfg.LidarrAPIKey)
 	log.Println("Lidarr client initialized")
 
-	// Initialize API server
-	apiServer := api.NewServer(db)
+	// Initialize API server with database and config
+	apiServer := api.NewServer(db, cfg)
 	log.Printf("API server initialized on port %s", cfg.ServerPort)
 
 	// Create context that listens for shutdown signals

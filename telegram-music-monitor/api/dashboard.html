@@ -26,6 +26,7 @@
         header {
             text-align: center;
             margin-bottom: 40px;
+            position: relative;
         }
 
         h1 {
@@ -37,6 +38,23 @@
         .subtitle {
             color: #b3b3b3;
             font-size: 1.1rem;
+        }
+
+        .settings-link {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #2a2a2a;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #1db954;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .settings-link:hover {
+            background: #333;
         }
 
         .stats-grid {
@@ -213,6 +231,7 @@
 <body>
     <div class="container">
         <header>
+            <a href="/settings" class="settings-link">⚙️ Settings</a>
             <h1>🎵 Telegram Music Monitor</h1>
             <p class="subtitle">Real-time music tracking from Telegram groups</p>
         </header>

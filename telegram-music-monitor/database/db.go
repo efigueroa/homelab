@@ -41,6 +41,14 @@ type GroupConfig struct {
 	AutoAdd   bool   // Whether to auto-add to Lidarr (always true in this version)
 }
 
+// ConfigOverride stores runtime configuration overrides
+// These values override environment variables and can be updated via the web UI
+type ConfigOverride struct {
+	Key       string    // Configuration key name
+	Value     string    // Configuration value (encrypted/sensitive)
+	UpdatedAt time.Time // When this was last updated
+}
+
 // New creates a new database connection and initializes the schema
 func New(dbPath string) (*DB, error) {
 	// Open SQLite database
@@ -94,6 +102,14 @@ func (db *DB) initSchema() error {
 		group_name TEXT NOT NULL,
 		enabled BOOLEAN NOT NULL DEFAULT 1,
 		auto_add BOOLEAN NOT NULL DEFAULT 1
+	);
+
+	-- Table to store runtime configuration overrides
+	-- This allows updating API keys and other settings via the web UI
+	CREATE TABLE IF NOT EXISTS config_overrides (
+		key TEXT PRIMARY KEY,
+		value TEXT NOT NULL,
+		updated_at TIMESTAMP NOT NULL
 	);
 
 	-- Indexes for faster queries
@@ -347,6 +363,77 @@ func (db *DB) GetPlatformStats() ([]struct{ Platform string; Count int }, error)
 	}
 
 	return results, nil
+}
+
+// SetConfigOverride stores or updates a configuration override
+// This allows runtime updates to configuration values via the web UI
+func (db *DB) SetConfigOverride(key, value string) error {
+	query := `
+		INSERT INTO config_overrides (key, value, updated_at)
+		VALUES (?, ?, ?)
+		ON CONFLICT(key) DO UPDATE SET
+			value = excluded.value,
+			updated_at = excluded.updated_at
+	`
+
+	_, err := db.conn.Exec(query, key, value, time.Now())
+	if err != nil {
+		return fmt.Errorf("failed to set config override: %w", err)
+	}
+
+	return nil
+}
+
+// GetConfigOverride retrieves a configuration override value
+// Returns empty string if the key doesn't exist
+func (db *DB) GetConfigOverride(key string) (string, error) {
+	query := `SELECT value FROM config_overrides WHERE key = ?`
+
+	var value string
+	err := db.conn.QueryRow(query, key).Scan(&value)
+	if err == sql.ErrNoRows {
+		return "", nil // Key doesn't exist, return empty string
+	}
+	if err != nil {
+		return "", fmt.Errorf("failed to get config override: %w", err)
+	}
+
+	return value, nil
+}
+
+// GetAllConfigOverrides retrieves all configuration overrides
+// Returns a map of key-value pairs
+func (db *DB) GetAllConfigOverrides() (map[string]string, error) {
+	query := `SELECT key, value FROM config_overrides`
+
+	rows, err := db.conn.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query config overrides: %w", err)
+	}
+	defer rows.Close()
+
+	result := make(map[string]string)
+	for rows.Next() {
+		var key, value string
+		if err := rows.Scan(&key, &value); err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+		result[key] = value
+	}
+
+	return result, nil
+}
+
+// DeleteConfigOverride removes a configuration override
+func (db *DB) DeleteConfigOverride(key string) error {
+	query := `DELETE FROM config_overrides WHERE key = ?`
+
+	_, err := db.conn.Exec(query, key)
+	if err != nil {
+		return fmt.Errorf("failed to delete config override: %w", err)
+	}
+
+	return nil
 }
 
 // Close closes the database connection
