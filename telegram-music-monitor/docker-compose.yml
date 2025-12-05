@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # Telegram Music Monitor service
+  music-monitor:
+    # Build the image from the Dockerfile in the current directory
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # Container name
+    container_name: telegram-music-monitor
+
+    # Restart policy - always restart unless stopped manually
+    restart: unless-stopped
+
+    # Environment variables
+    # IMPORTANT: Replace these with your actual credentials
+    environment:
+      # Telegram credentials (get from https://my.telegram.org)
+      - TELEGRAM_API_ID=YOUR_API_ID
+      - TELEGRAM_API_HASH=YOUR_API_HASH
+      - TELEGRAM_PHONE=+1234567890
+
+      # Spotify credentials (get from https://developer.spotify.com)
+      - SPOTIFY_CLIENT_ID=YOUR_SPOTIFY_CLIENT_ID
+      - SPOTIFY_CLIENT_SECRET=YOUR_SPOTIFY_CLIENT_SECRET
+
+      # YouTube API key (get from https://console.cloud.google.com)
+      - YOUTUBE_API_KEY=YOUR_YOUTUBE_API_KEY
+
+      # Lidarr configuration
+      - LIDARR_URL=http://lidarr:8686
+      - LIDARR_API_KEY=YOUR_LIDARR_API_KEY
+
+      # Database path (inside container)
+      - DATABASE_PATH=/data/music_monitor.db
+
+      # API server port
+      - SERVER_PORT=8080
+
+    # Port mapping
+    # Maps container port 8080 to host port 8080
+    # Change the first number to use a different host port
+    ports:
+      - "8080:8080"
+
+    # Volume mapping
+    # Persists data between container restarts
+    volumes:
+      # Mount ./data directory to /data in container
+      # This stores the database and Telegram session
+      - ./data:/data
+
+    # Health check
+    # Docker will periodically check if the container is healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    # Optional: Connect to the same network as your Lidarr container
+    # Uncomment if Lidarr is running in Docker on the same host
+    # networks:
+    #   - media-network
+
+# Optional: Define networks
+# Uncomment if you want to connect to an existing network
+# networks:
+#   media-network:
+#     external: true

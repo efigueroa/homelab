@@ -1,0 +1,38 @@
+# Data directory (contains database and session files)
+data/
+
+# Compiled binaries
+music-monitor
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Go test files
+*.test
+*.out
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# Environment files
+.env
+.env.local
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log
