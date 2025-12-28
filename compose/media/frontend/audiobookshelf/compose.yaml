@@ -1,0 +1,41 @@
+# Audiobookshelf - Self-hosted audiobook and podcast server
+# Docs: https://www.audiobookshelf.org/docs
+# Docker Hub: https://hub.docker.com/r/advplyr/audiobookshelf
+# Source: https://github.com/advplyr/audiobookshelf
+
+services:
+  audiobookshelf:
+    container_name: audiobookshelf
+    image: advplyr/audiobookshelf:latest
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./config:/config
+      - ./metadata:/metadata
+      - /media/audiobooks:/audiobooks
+      - /media/podcasts:/podcasts
+
+    networks:
+      - homelab
+
+    labels:
+      traefik.enable: true
+      traefik.docker.network: homelab
+
+      # Routing
+      traefik.http.routers.audiobookshelf.rule: Host(`pod.fig.systems`) || Host(`pod.edfig.dev`)
+      traefik.http.routers.audiobookshelf.entrypoints: websecure
+      traefik.http.routers.audiobookshelf.tls.certresolver: letsencrypt
+      traefik.http.services.audiobookshelf.loadbalancer.server.port: 80
+
+      # Homarr auto-discovery
+      homarr.name: Audiobookshelf
+      homarr.group: Media
+      homarr.icon: mdi:book-play
+
+networks:
+  homelab:
+    external: true

@@ -1,0 +1,53 @@
+# EPUB to Audiobook Converter - WebUI for converting ebooks to audiobooks
+# Docs: https://github.com/p0n1/epub_to_audiobook
+# Optimized for Audiobookshelf integration
+# IMPORTANT: Uses SSO protection - not designed for public internet access
+
+services:
+  epub-to-audiobook:
+    container_name: epub-to-audiobook
+    image: ghcr.io/p0n1/epub_to_audiobook:latest
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    environment:
+      # TTS Provider API Keys (optional - EdgeTTS works without keys)
+      - MS_TTS_KEY=${MS_TTS_KEY:-}
+      - MS_TTS_REGION=${MS_TTS_REGION:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-}
+
+    volumes:
+      # Input: Place EPUB files here for conversion
+      - ./input:/app/input
+      # Output: Converted audiobooks ready for Audiobookshelf
+      - /media/audiobooks:/app/output
+      # Config and cache
+      - ./config:/app/config
+
+    networks:
+      - homelab
+
+    labels:
+      traefik.enable: true
+      traefik.docker.network: homelab
+
+      # Routing
+      traefik.http.routers.epub-to-audiobook.rule: Host(`convert.fig.systems`) || Host(`convert.edfig.dev`)
+      traefik.http.routers.epub-to-audiobook.entrypoints: websecure
+      traefik.http.routers.epub-to-audiobook.tls.certresolver: letsencrypt
+      traefik.http.services.epub-to-audiobook.loadbalancer.server.port: 7860
+
+      # SSO Protection (REQUIRED - tool has no built-in auth)
+      traefik.http.routers.epub-to-audiobook.middlewares: tinyauth
+
+      # Homarr auto-discovery
+      homarr.name: EPUB to Audiobook
+      homarr.group: Media Tools
+      homarr.icon: mdi:book-arrow-right
+
+networks:
+  homelab:
+    external: true

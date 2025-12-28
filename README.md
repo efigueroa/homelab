@@ -40,16 +40,18 @@ compose/
 │   └── tinyauth/   # SSO authentication
 ├── media/          # Media services
 │   ├── frontend/   # Media frontends
-│   │   ├── jellyfin/   # Media server (flix.fig.systems)
-│   │   ├── jellyseer/  # Request management (requests.fig.systems)
-│   │   └── immich/     # Photo management (photos.fig.systems)
+│   │   ├── jellyfin/      # Media server (flix.fig.systems)
+│   │   ├── jellyseer/     # Request management (requests.fig.systems)
+│   │   ├── immich/        # Photo management (photos.fig.systems)
+│   │   └── audiobookshelf/# Audiobook server (pod.fig.systems)
 │   └── automation/ # Media automation
-│       ├── sonarr/     # TV show management
-│       ├── radarr/     # Movie management
-│       ├── sabnzbd/    # Usenet downloader
-│       ├── qbittorrent/# Torrent client
-│       ├── recyclarr/  # TRaSH Guides sync
-│       └── profilarr/  # Profile manager (profilarr.fig.systems)
+│       ├── sonarr/           # TV show management
+│       ├── radarr/           # Movie management
+│       ├── sabnzbd/          # Usenet downloader
+│       ├── qbittorrent/      # Torrent client
+│       ├── recyclarr/        # TRaSH Guides sync
+│       ├── profilarr/        # Profile manager (profilarr.fig.systems)
+│       └── epub-to-audiobook/# EPUB to audiobook converter (convert.fig.systems)
 ├── monitoring/      # Monitoring & logging
 │   ├── logging/     # Centralized logging stack
 │   │   ├── loki/        # Log aggregation (loki.fig.systems)
@@ -112,6 +114,8 @@ Testing and experimental services:
 | Jellyfin | flix.fig.systems | ❌* |
 | Jellyseerr | requests.fig.systems | ✅ |
 | Immich | photos.fig.systems | ❌* |
+| Audiobookshelf | pod.fig.systems | ❌* |
+| EPUB to Audiobook | convert.fig.systems | ✅ |
 | Sonarr | sonarr.fig.systems | ✅ |
 | Radarr | radarr.fig.systems | ✅ |
 | SABnzbd | sabnzbd.fig.systems | ✅ |
@@ -188,12 +192,14 @@ cd compose/core/tinyauth && docker compose up -d
 cd compose/media/frontend/jellyfin && docker compose up -d
 cd compose/media/frontend/jellyseer && docker compose up -d
 cd compose/media/frontend/immich && docker compose up -d
+cd compose/media/frontend/audiobookshelf && docker compose up -d
 
 # Media automation
 cd compose/media/automation/sonarr && docker compose up -d
 cd compose/media/automation/radarr && docker compose up -d
 cd compose/media/automation/sabnzbd && docker compose up -d
 cd compose/media/automation/qbittorrent && docker compose up -d
+cd compose/media/automation/epub-to-audiobook && docker compose up -d
 
 # Quality management (optional but recommended)
 cd compose/media/automation/recyclarr && docker compose up -d
